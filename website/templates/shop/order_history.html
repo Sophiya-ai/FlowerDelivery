@@ -1,0 +1,42 @@
+{% extends 'shop/base.html' %}
+
+{% block title %}
+  <title>Личная страница пользователя</title>
+{% endblock %}
+
+{% block content %}
+    <div class="container mt-5">
+        <div class="card">
+            <div class="card-header">
+                <h2>Форма для добавления данных пользователя</h2>
+            </div>
+            <div class="card-body">
+                <form method="post"> <!-- можно указать здесь action указывает, куда будут перенаправляться данные,
+                    когда мы их отправим, и какая функция будет их обрабатывать. Можем указать action.
+                    Если его не указать, обрабатывать будет та же функция, которая открывает страницу
+
+                    Отлавливаем ошибку CSRF. Для прохождения проверки в начале формы
+                    (прямо под строкой <form method=”post”>) добавляем {% csrf_token %}-->
+
+                    {% csrf_token %}
+                    <div class="form-group">
+                        {{form.phone_number}}
+                    </div><br>
+                    <div class="form-group">
+                        {{form.address}}
+                    </div><br>
+                    <div class="form-group">
+                        {{form.type_of_user}}
+                    </div><br>
+                    <button type="submit" class="btn btn-primary">Сохранить</button>
+                </form>
+                <p>{{error}}</p>
+            </div>
+        </div>
+    </div>
+
+    <div>
+
+    </div>
+
+{% endblock %}

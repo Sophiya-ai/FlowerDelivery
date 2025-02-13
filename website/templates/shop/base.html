@@ -1,3 +1,5 @@
+{% load static %}
+
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -5,15 +7,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Цветочный магазин{% endblock %}</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'shop/css/style.css' %}">
 </head>
 <body>
     <header>
-        {% include 'repeated_fragments/navbar.html' %}
+        {% include 'shop/repeated_fragments/navbar.html' %}
     </header>
 
     <main class="container mt-4">
-        {% include 'repeated_fragments/messages.html' %}
+        {% include 'shop/repeated_fragments/messages.html' %}
 
         {% block content %}
 
@@ -21,7 +23,7 @@
     </main>
 
     <footer class="mt-4">
-        {% include 'repeated_fragments/footer.html' %}
+        {% include 'shop/repeated_fragments/footer.html' %}
     </footer>
 
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
