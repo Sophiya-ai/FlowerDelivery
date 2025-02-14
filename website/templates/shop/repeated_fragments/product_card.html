@@ -1,12 +1,21 @@
 <div class="card h-100">  <!-- Класс h-100 задает высоту карточки на 100% родительского элемента -->
-    <img src="" class="card-img-top" alt="{{ product.name }}">
+
+    <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}">
     <div class="card-body">
         <h5 class="card-title">{{ product.name }}</h5>
         <p class="card-text">{{ product.description|truncatewords:20 }}</p> <!-- Отображает описание товара, обрезанное до 20 слов -->
         <p class="card-text">Цена: {{ product.price }} руб.</p>
-        <a href="{% url 'product_detail' product.id %}" class="btn btn-primary">Подробнее</a> <!-- Создает URL-адрес для страницы с подробной информацией о товаре -->
+                <!-- Отображаем статус после цены-->
+        <p class="card-text">
+            {% if product.is_available %}
+                В наличии
+            {% else %}
+                Нет в наличии
+            {% endif %}
+        </p>
     </div>
     <div class="card-footer">
         <small class="text-muted">Добавлено: {{ product.created_at|date:"d.m.Y" }}</small>
     </div>
+
 </div>

@@ -16,8 +16,8 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-#Главная страница будет обрабатываться с помощью приложения нашего,
-#которое находится в отдельном пакете. В него нужно как-то попасть.
+# Главная страница будет обрабатываться с помощью приложения нашего,
+# которое находится в отдельном пакете. В него нужно как-то попасть.
 # Для этого существует специальная функция include
 
 # Для работы со статическим файлами подключаем:
@@ -25,6 +25,11 @@ from django.conf import settings
 from django.conf.urls.static import static
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('', include('shop.urls')),
-] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT) # Для работы со статическим файлами, прописываем их подключение и использование
+                  path('admin/', admin.site.urls),
+                  path('', include('shop.urls')),
+              ] + static(settings.STATIC_URL,
+                         document_root=settings.STATIC_ROOT)  # Для работы со статическим файлами, прописываем их подключение и использование
+
+# Настройка URL для медиафайлов. Это позволит Django обслуживать медиафайлы во время разработки
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

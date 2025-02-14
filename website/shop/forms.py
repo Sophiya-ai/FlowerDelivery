@@ -8,8 +8,11 @@ from .models import UserProfile
 
 class UserProfileCreationForm(UserCreationForm):
     phone_number = PhoneNumberField(
-        widget=TextInput(attrs={'class': 'form-control', 'placeholder': 'Телефон'}))
-    address = forms.CharField(widget=forms.Textarea, required=False, label="Адрес")
+        widget=TextInput(attrs={'class': 'form-control'}))
+    address = forms.CharField(widget=
+                              forms.Textarea(attrs={'rows': 3, 'cols': 40, 'class': 'form-control'}),
+                              # размер текстового поля в attrs
+                              required=False, label="Адрес")
     type_of_user = forms.ChoiceField(
         choices=[
             ('company', 'Компания'),

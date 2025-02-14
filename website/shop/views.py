@@ -1,3 +1,5 @@
+import logging
+
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils.crypto import get_random_string
 from django.shortcuts import render, redirect
@@ -5,19 +7,20 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 from django.core.paginator import Paginator
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth import get_user_model
-# Импортирована функция get_user_model из django.contrib.auth, которая позволяет получить текущую модель пользователя,
+from django.contrib.auth import get_user_model  # Импортирована функция get_user_model из django.contrib.auth,
+# которая позволяет получить текущую модель пользователя,
 # указанную в AUTH_USER_MODEL
 
 from .models import UserProfile, Category, Product, Order, OrderItem, Review, BotUser, BotOrder
 from .forms import UserFormInOrderHistory, UserProfileCreationForm
 from django.conf import settings
 
-
 User = get_user_model()
+logger = logging.getLogger(__name__)
+
 
 def index(request):
-    products = Product.objects.filter(is_available=True).order_by('name')
+    products = Product.objects.order_by('name')
     paginator = Paginator(products, 6)  # Показывать 6 товаров на странице
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
@@ -36,7 +39,9 @@ def login_view(request):
                 return redirect('individual_data')  # Перенаправляем на Личную страницу
             else:
                 # Обработка ошибки аутентификации
-                return render(request, 'shop/login.html', {'form': form, 'error': 'Неверное имя пользователя или пароль'})
+                logger.warning(f"Authentication failed for username: {username}")
+                return render(request, 'shop/login.html',
+                              {'form': form, 'error': 'Неверное имя пользователя или пароль'})
     else:
         form = AuthenticationForm()
     return render(request, 'shop/login.html', {'form': form})
@@ -73,7 +78,7 @@ def view_orders_and_individual_data(request):
         form = UserFormInOrderHistory(request.POST, instance=request.user)
         if form.is_valid():
             form.save()
-            return redirect('individual_data') # Обновляем страницу
+            return redirect('individual_data')  # Обновляем страницу
     else:
         form = UserFormInOrderHistory(instance=request.user)
 
@@ -88,3 +93,5 @@ def view_orders_and_individual_data(request):
                    'user': request.user,
                    'telegram_bot_url': telegram_bot_url,
                    'order_history': order_history_data})
+
+
