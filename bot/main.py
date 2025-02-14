@@ -57,7 +57,7 @@ async def start(message: Message):
                 """, (message.from_user.id, message.from_user.username, message.from_user.first_name,
                       message.from_user.last_name))
 
-                cursor.execute(""" UPDATE shop_UserProfile SET telegram_user = ? WHERE id = ?
+                cursor.execute(""" UPDATE shop_UserProfile SET telegram_user_id = ? WHERE id = ?
                                     """, (message.from_user.id, user_id,))
                 conn.commit()
 
