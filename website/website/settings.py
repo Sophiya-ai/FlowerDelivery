@@ -137,8 +137,7 @@ MEDIA_URL = '/media/'
 # Папка, в которой будут храниться медиафайлы
 MEDIA_ROOT = BASE_DIR / 'media'
 
-# Использую расширенную модель пользователя
-AUTH_USER_MODEL = 'shop.User'
+AUTH_USER_MODEL = 'shop.UserProfile'
 
 TELEGRAM_BOT_USERNAME = "OderFlower_bot"
 

@@ -14,7 +14,7 @@ logging.basicConfig(level=logging.INFO)
 bot = Bot(token=BOT_TOKEN)
 dp = Dispatcher()
 
-DATABASE_URL = "../db/database.sqlite3"
+DATABASE_URL = "../db/db.sqlite3"
 
 
 def create_db_connection():
@@ -32,7 +32,9 @@ def create_db_connection():
 async def start(message: Message):
     # Получаем список аргументов из текста сообщения (message.text содержит полный текст сообщения, включая команду /start)
     args = message.text.split()[1:]
-    user_id = args[0] if args else None  # Берем первый аргумент, если он есть
+    user_id_txt = args[0] if args else None # Берем первый аргумент, если он есть
+    user_id = int(user_id_txt)
+    await bot.send_message(message.chat.id, f"Привет! Вы успешно подключили свой аккаунт (ID: {user_id}).")
     conn = create_db_connection()  # соединение с БД
 
     if conn is not None:
@@ -40,7 +42,7 @@ async def start(message: Message):
         try:
             if user_id:
                 # Проверяем, есть ли уже пользователь с таким telegram_id
-                cursor.execute("SELECT telegram_id FROM BotUser WHERE telegram_id = ?", (message.from_user.id,))
+                cursor.execute("SELECT telegram_id FROM shop_BotUser WHERE telegram_id = ?", (message.from_user.id,))
                 existing_user = cursor.fetchone()
                 if existing_user:
                     await message.reply(
@@ -50,15 +52,18 @@ async def start(message: Message):
 
                 # Если ID пользователя есть, сохраняем данные в таблицу BotUser
                 cursor.execute("""
-                    INSERT INTO BotUser (telegram_id, username, first_name, last_name)
+                    INSERT INTO shop_BotUser (telegram_id, username, first_name, last_name)
                     VALUES (?, ?, ?, ?)
                 """, (message.from_user.id, message.from_user.username, message.from_user.first_name,
                       message.from_user.last_name))
+
+                cursor.execute(""" UPDATE shop_UserProfile SET telegram_user = ? WHERE id = ?
+                                    """, (message.from_user.id, user_id,))
                 conn.commit()
 
                 # Логируем добавление пользователя
                 logging.info(
-                    f"Добавлен новый пользователь BotUser с telegram_id: {message.from_user.id}")
+                    f"Добавлен новый пользователь в BotUser с telegram_id: {message.from_user.id}")
 
                 await message.reply(
                     f"Привет! Вы успешно подключены к вашему аккаунту на сайте. "

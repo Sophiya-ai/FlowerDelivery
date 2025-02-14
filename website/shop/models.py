@@ -1,12 +1,13 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser, Group, Permission
+from django.contrib.auth.models import User
 
 
 # Используем встроенную модель пользователя AbstractUser.
 # Добавляем дополнительные поля - телефон, адрес и telegram_user
-class User(AbstractUser):
-    phone_number = models.CharField(max_length=20, blank=True, null=True)
-    address = models.TextField(blank=True, null=True)
+class UserProfile(AbstractUser):
+    phone_number = models.CharField(max_length=20, blank=True, null=True, verbose_name="Номер телефона")
+    address = models.TextField(blank=True, null=True, verbose_name="Адрес")
     type_of_user = models.CharField(
         max_length=20,
         choices=[
@@ -80,7 +81,7 @@ class Product(models.Model):
 
 
 class Order(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="orders", verbose_name="Пользователь")
+    user = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name="orders", verbose_name="Пользователь")
     order_date = models.DateTimeField(auto_now_add=True, verbose_name="Дата заказа")
     delivery_address = models.TextField(verbose_name="Адрес доставки")
     total_price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Общая цена")
@@ -127,7 +128,7 @@ class OrderItem(models.Model):
 
 
 class Review(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="reviews", verbose_name="Пользователь")
+    user = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name="reviews", verbose_name="Пользователь")
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name="reviews", verbose_name="Товар")
     rating = models.PositiveIntegerField(verbose_name="Рейтинг")
     comment = models.TextField(blank=True, null=True, verbose_name="Комментарий")
