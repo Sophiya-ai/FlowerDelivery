@@ -19,23 +19,40 @@
                     (прямо под строкой <form method=”post”>) добавляем {% csrf_token %}-->
 
                     {% csrf_token %}
-                    <div class="form-group">
-                        {{form.phone_number}}
-                    </div><br>
-                    <div class="form-group">
-                        {{form.address}}
-                    </div><br>
-                    <div class="form-group">
-                        {{form.type_of_user}}
-                    </div><br>
+                    {% for field in form %}
+                        <div class="form-group">
+                            <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                            {{ field }}
+                            {% if field.errors %}
+                                <div class="alert alert-danger">
+                                    {{ field.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
                     <button type="submit" class="btn btn-primary">Сохранить</button>
                 </form>
-                <p>{{error}}</p>
             </div>
         </div>
     </div>
 
     <div>
+        <h1>Личные данные пользователя</h1>
+        <p>Имя: {{ user.first_name }}</p>
+        <p>Фамилия: {{ user.last_name }}</p>
+        <p>Логин: {{ user.username }}</p>
+        <p>Номер телефона: {{ user.phone_number }}</p>
+        <p>Адрес: {{ user.address }}</p>
+        <p>Тип пользователя: {{ user.get_user_type_display }}</p> <!-- автоматический метод, создаваемый Django для полей с choices, позволяющий отображать человекочитаемое значение вместо кода -->
+    </div>
+
+    <div>
+        <h2>Подключиться к Telegram боту</h2>
+        <a href="{{ telegram_bot_url }}" class="btn btn-info">Подключиться к боту</a>
+    </div>
+
+    <div>
+        <h1>История заказов</h1>
 
     </div>
 

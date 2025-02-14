@@ -137,4 +137,9 @@ MEDIA_URL = '/media/'
 # Папка, в которой будут храниться медиафайлы
 MEDIA_ROOT = BASE_DIR / 'media'
 
+# Использую расширенную модель пользователя
+AUTH_USER_MODEL = 'shop.User'
+
+TELEGRAM_BOT_USERNAME = "OderFlower_bot"
+
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
