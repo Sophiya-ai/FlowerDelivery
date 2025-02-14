@@ -26,7 +26,7 @@ def login_view(request):
             user = authenticate(username=username, password=password)
             if user is not None:
                 login(request, user)
-                return redirect('order_history')  # Перенаправляем на главную страницу
+                return redirect('individual_data')  # Перенаправляем на главную страницу
             else:
                 # Обработка ошибки аутентификации
                 return render(request, 'shop/login.html', {'form': form, 'error': 'Неверное имя пользователя или пароль'})
@@ -41,7 +41,7 @@ def register(request):
         if form.is_valid():
             user = form.save()
             login(request, user)  # Автоматически логиним после регистрации
-            return redirect('index')  # Перенаправляем на главную страницу
+            return redirect('home')  # Перенаправляем на главную страницу
     else:
         form = UserCreationForm()
     return render(request, 'shop/register.html', {'form': form})
@@ -49,7 +49,7 @@ def register(request):
 
 def logout_view(request):
     logout(request)
-    return redirect('index')  # Перенаправляем на главную страницу
+    return redirect('home')  # Перенаправляем на главную страницу
 
 
 def view_orders_and_individual_data(request):
