@@ -5,71 +5,69 @@
 {% endblock %}
 
 {% block content %}
-    <div>
-        <h3>Подключиться к Telegram боту сайта для отслеживания и оформления заказов</h3>
-        <a href="{{ telegram_bot_url }}" class="btn btn-info">Подключиться к боту</a>
+<div class="container mt-4">
+    <div class="text-center mb-4">
+    <a href="{{ telegram_bot_url }}" class="btn btn-info btn-blinking btn-bordered">Подключиться к Telegram боту сайта для отслеживания и оформления заказов</a>
     </div>
 
-    <div>
-        <h3>Личные данные пользователя</h3>
-        <p>Имя: {{ user.first_name }}</p>
-        <p>Фамилия: {{ user.last_name }}</p>
-        <p>Логин: {{ user.username }}</p>
-        <p>Номер телефона: {{ user.phone_number }}</p>
-        <p>Адрес: {{ user.address }}</p>
-        <p>Тип пользователя: {{ user.get_type_of_user_display }}</p> <!-- автоматический метод, создаваемый Django
-                                   для полей с choices, позволяющий отображать человекочитаемое значение вместо кода -->
-    </div>
-
-    <div>
-        <h3>История заказов</h3>
-        {% if order_history %}
-        <ul>
-            {% for order in order_history %}
-                <li>
-                    Заказ №{{ order.id }} от {{ order.order_date|date:"d.m.Y H:i" }} -
-                    Адрес доставки: {{ order.delivery_address }} -
-                    Общая цена: {{ order.total_price }} -
-                    Статус: {{ order.get_status_display }}
-                </li>
-            {% endfor %}
-        </ul>
-        {% else %}
-            <p>Нет истории заказов.</p>
-        {% endif %}
-    </div>
-
-    <div class="container mt-5">
-        <div class="card">
-            <div class="card-header">
-                <h3>Редактировать профиль</h3>
-            </div>
-            <div class="card-body">
-                <form method="post"> <!-- можно указать здесь action указывает, куда будут перенаправляться данные,
-                    когда мы их отправим, и какая функция будет их обрабатывать. Можем указать action.
-                    Если его не указать, обрабатывать будет та же функция, которая открывает страницу
-
-                    Отлавливаем ошибку CSRF. Для прохождения проверки в начале формы
-                    (прямо под строкой <form method=”post”>) добавляем {% csrf_token %}-->
-
-                    {% csrf_token %}
-                    {% for field in form %}
-                        <div class="form-group">
-                            <label for="{{ field.id_for_label }}">{{ field.label }}</label>
-                            {{ field }}
-                            {% if field.errors %}
-                                <div class="alert alert-danger">
-                                    {{ field.errors }}
-                                </div>
-                            {% endif %}
-                        </div>
-                    {% endfor %}
-                    <button type="submit" class="btn btn-primary">Сохранить</button>
-                </form>
-            </div>
+    <div class="card mb-4">
+        <div class="card-header">
+            <h4>Личные данные пользователя</h4>
+        </div>
+        <div class="card-body">
+            <p><strong>Имя:</strong> {{ user.first_name }}</p>
+            <p><strong>Фамилия:</strong> {{ user.last_name }}</p>
+            <p><strong>Логин:</strong> {{ user.username }}</p>
+            <p><strong>Номер телефона:</strong> {{ user.phone_number }}</p>
+            <p><strong>Адрес:</strong> {{ user.address }}</p>
+            <p><strong>Тип пользователя:</strong> {{ user.get_type_of_user_display }}</p>
         </div>
     </div>
 
+    <div class="card mb-4">
+        <div class="card-header">
+            <h4>История заказов</h4>
+        </div>
+        <div class="card-body">
+            {% if order_history %}
+            <ul class="list-group">
+                {% for order in order_history %}
+                <li class="list-group-item">
+                    <strong>Заказ №{{ order.id }}</strong> от {{ order.order_date|date:"d.m.Y H:i" }}<br>
+                    <strong>Адрес доставки:</strong> {{ order.delivery_address }}<br>
+                    <strong>Общая цена:</strong> {{ order.total_price }}<br>
+                    <strong>Статус:</strong> {{ order.get_status_display }}
+                </li>
+                {% endfor %}
+            </ul>
+            {% else %}
+            <p>Нет истории заказов.</p>
+            {% endif %}
+        </div>
+    </div>
 
+    <div class="card mb-4">
+        <div class="card-header">
+            <h4>Редактировать профиль</h4>
+        </div>
+        <div class="card-body">
+            <form method="post">
+                {% csrf_token %}
+                {% for field in form %}
+                <div class="form-group mb-3">
+                    <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                    {{ field }}
+                    {% if field.errors %}
+                    <div class="alert alert-danger mt-2">
+                        {{ field.errors }}
+                    </div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+                <button type="submit" class="btn btn-primary">Сохранить</button>
+            </form>
+        </div>
+    </div>
+</div>
 
 {% endblock %}

@@ -8,21 +8,54 @@
     <title>{% block title %}Цветочный магазин{% endblock %}</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link rel="stylesheet" href="{% static 'shop/css/style.css' %}">
+    <style>
+        .hero {
+            background: url("{% static 'shop/img/flowers.jpg' %}") no-repeat center center;
+            background-size: cover;
+            color: white;
+            padding: 100px 0;
+            text-align: center;
+        }
+    </style>
 </head>
 <body>
     <header>
         {% include 'shop/repeated_fragments/navbar.html' %}
     </header>
 
-    <main class="container mt-4">
+    <section class="hero">
+        <div class="container">
+            <h1><strong>Добро пожаловать в наш цветочный магазин!</strong></h1>
+            <p><strong>Самые свежие и красивые цветы для вас.</strong></p>
+        </div>
+    </section>
+
+    <main class="container mt-5">
         {% include 'shop/repeated_fragments/messages.html' %}
 
-        {% block content %}
+        <div class="row">
 
-        {% endblock %}
+
+            <div class="col-md-8">
+                {% block content %}
+                {% endblock %}
+            </div>
+            <div class="col-md-4">
+                <!-- Боковая панель -->
+                <div class="card mb-4 sidebar-card">
+                    <div class="card-header sidebar-card-header">
+                        Новости
+                    </div>
+                    <div class="card-body sidebar-card-body">
+                        <p class="card-text sidebar-card-text">Узнайте последние новости нашего магазина.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </main>
 
-    <footer class="mt-4">
+    <footer class="bg-dark text-black mt-5 p-4 text-center">
         {% include 'shop/repeated_fragments/footer.html' %}
     </footer>
 
@@ -30,5 +63,6 @@
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <script src="{% static 'js/script.js' %}"></script>
+
 </body>
 </html>
