@@ -225,7 +225,7 @@ main {
     border: none;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
     border-radius: 0.5rem;
-    max-width: 80%;
+    max-width: 100%;
 }
 
 .register-card .card-title {
