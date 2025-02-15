@@ -5,11 +5,11 @@
 {% block content %}
     <div class="row">
         {% for product in products %}
-            <div class="col-md-4 mb-4">
+            <div class="col-md-4 mb-3">
                 {% include 'shop/repeated_fragments/product_card.html' %}
             </div>
         {% endfor %}
-    </div>
+    </div><br>
 
     <!-- Пагинация  -->
     <div class="row justify-content-center">

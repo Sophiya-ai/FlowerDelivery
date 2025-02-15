@@ -20,34 +20,31 @@
             <h1><strong>Добро пожаловать в наш цветочный магазин!</strong></h1>
             <p><strong>Самые свежие и красивые цветы для вас.</strong></p>
         </div>
-    </section>
+    </section><br>
 
-    <main class="container mt-5">
+    <main class="container-fluid">
         {% include 'shop/repeated_fragments/messages.html' %}
 
         <div class="row">
-
-
             <div class="col-md-8">
                 {% block content %}
                 {% endblock %}
             </div>
-            <div class="col-md-4">
+            <div class="col-md-4 d-flex justify-content-end">
                 <!-- Боковая панель -->
-                <div class="card mb-4 sidebar-card">
+                <div class="card mb-8 sidebar-card">
                     <div class="card-header sidebar-card-header">
-                        Полезные ссылки
+                        Ссылки
                     </div>
                     <div class="card-body sidebar-card-body">
-                        <a href="{{ telegram_bot_url }}" class="card-text sidebar-card-text">Перейти в Telegram-бота</a>
+                        <a href="{{ telegram_bot_url }}" class="card-text sidebar-card-text">Telegram-бот</a>
                     </div>
                     <div class="card-body sidebar-card-body">
-                        <p class="card-text sidebar-card-text">Узнайте последние новости нашего магазина.</p>
+                        <p class="card-text sidebar-card-text">Новости </p>
                     </div>
                 </div>
             </div>
         </div>
-
     </main>
 
     <footer class="bg-dark text-black mt-5 p-4 text-center">

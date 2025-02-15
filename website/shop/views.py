@@ -20,11 +20,12 @@ logger = logging.getLogger(__name__)
 
 
 def index(request):
-    products = Product.objects.order_by('name')
+    products = Product.objects.all().order_by('-is_available')
     paginator = Paginator(products, 6)  # Показывать 6 товаров на странице
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
-    return render(request, 'shop/index.html', {'products': page_obj})
+    telegram_bot_url = f"https://t.me/{settings.TELEGRAM_BOT_USERNAME}?start={request.user.id}"
+    return render(request, 'shop/index.html', {'telegram_bot_url': telegram_bot_url, 'products': page_obj})
 
 
 def login_view(request):
@@ -45,6 +46,56 @@ def login_view(request):
     else:
         form = AuthenticationForm()
     return render(request, 'shop/login.html', {'form': form})
+
+
+from django.shortcuts import render, redirect, get_object_or_404
+from .models import Product
+from django.contrib import messages
+
+
+def cart_view(request):
+    cart = request.session.get('cart', {})
+    cart_items = []
+    total_price = 0
+
+    for product_id, quantity in cart.items():
+        product = get_object_or_404(Product, pk=product_id)
+        total_for_product = product.price * quantity
+        cart_items.append({
+            'product': product,
+            'quantity': quantity,
+            'total': total_for_product,
+        })
+        total_price += total_for_product
+
+    context = {
+        'cart_items': cart_items,
+        'total_price': total_price,
+    }
+    return render(request, 'shop/cart.html', context)
+
+
+def add_to_cart(request, product_id):
+    product = get_object_or_404(Product, pk=product_id)
+    cart = request.session.get('cart', {})
+    quantity = 1
+    if product_id in cart:
+        cart[product_id] += quantity
+    else:
+        cart[product_id] = quantity
+    request.session['cart'] = cart
+    messages.success(request, f'Товар {product.name} добавлен в корзину!')
+    return redirect('home')
+
+
+def remove_from_cart(request, product_id):
+    cart = request.session.get('cart', {})
+
+    if product_id in cart:
+        del cart[product_id]
+        request.session['cart'] = cart
+        messages.success(request, "Товар удален из корзины")
+    return redirect('cart')
 
 
 def register(request):
@@ -93,5 +144,3 @@ def view_orders_and_individual_data(request):
                    'user': request.user,
                    'telegram_bot_url': telegram_bot_url,
                    'order_history': order_history_data})
-
-

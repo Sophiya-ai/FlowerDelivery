@@ -14,9 +14,6 @@
                     <a class="nav-link" href="#">Каталог</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="#">О нас</a>
-                </li>
-                <li class="nav-item">
                     <a class="nav-link" href="#">Контакты</a>
                 </li>
             </ul>
@@ -27,6 +24,14 @@
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'individual_data' %}">Личный кабинет</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'cart' %}">
+                            Корзина
+                            {% if request.session.cart %}
+                                <span class="badge badge-primary">{{ request.session.cart|length }}</span>
+                            {% endif %}
+                        </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'logout' %}">Выйти</a>

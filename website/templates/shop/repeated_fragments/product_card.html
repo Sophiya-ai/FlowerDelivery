@@ -1,21 +1,25 @@
-<div class="card h-100">  <!-- Класс h-100 задает высоту карточки на 100% родительского элемента -->
-
-    <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}">
-    <div class="card-body">
+<div class="card h-100 d-flex flex-column">
+    <img src="{{ product.image.url }}" class="card-img-top fixed-image" alt="{{ product.name }}">
+    <div class="card-body flex-grow-1">
         <h5 class="card-title">{{ product.name }}</h5>
-        <p class="card-text">{{ product.description|truncatewords:20 }}</p> <!-- Отображает описание товара, обрезанное до 20 слов -->
-        <p class="card-text">Цена: {{ product.price }} руб.</p>
-                <!-- Отображаем статус после цены-->
-        <p class="card-text">
+        <p class="card-text">{{ product.description|truncatewords:18 }}</p>
+    </div>
+    <div class="card-footer mt-auto">
+        <p class="card-text mb-2">
             {% if product.is_available %}
                 <span class="available">В наличии</span>
             {% else %}
                 <span class="not-available">Нет в наличии</span>
             {% endif %}
         </p>
-    </div>
-    <div class="card-footer">
+        {% if product.is_available %}
+            <a href="{% url 'add_to_cart' product.id %}" class="btn btn-primary">В корзину</a>
+        {% endif %}
+        <p class="product-price">
+            {% if product.is_available %}
+                Цена: {{ product.price }} руб.
+            {% endif %}
+        </p>
         <small class="text-muted">Добавлено: {{ product.created_at|date:"d.m.Y" }}</small>
     </div>
-
 </div>
