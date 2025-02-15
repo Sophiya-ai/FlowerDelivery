@@ -1,5 +1,6 @@
 {% load static %}
 
+
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -8,15 +9,6 @@
     <title>{% block title %}Цветочный магазин{% endblock %}</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link rel="stylesheet" href="{% static 'shop/css/style.css' %}">
-    <style>
-        .hero {
-            background: url("{% static 'shop/img/flowers.jpg' %}") no-repeat center center;
-            background-size: cover;
-            color: white;
-            padding: 100px 0;
-            text-align: center;
-        }
-    </style>
 </head>
 <body>
     <header>
@@ -44,9 +36,10 @@
                 <!-- Боковая панель -->
                 <div class="card mb-4 sidebar-card">
                     <div class="card-header sidebar-card-header">
-
+                        Полезные ссылки
+                    </div>
+                    <div class="card-body sidebar-card-body">
                         <a href="{{ telegram_bot_url }}" class="card-text sidebar-card-text">Перейти в Telegram-бота</a>
-
                     </div>
                     <div class="card-body sidebar-card-body">
                         <p class="card-text sidebar-card-text">Узнайте последние новости нашего магазина.</p>

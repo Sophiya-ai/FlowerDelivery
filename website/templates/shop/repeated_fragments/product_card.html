@@ -8,9 +8,9 @@
                 <!-- Отображаем статус после цены-->
         <p class="card-text">
             {% if product.is_available %}
-                В наличии
+                <span class="available">В наличии</span>
             {% else %}
-                Нет в наличии
+                <span class="not-available">Нет в наличии</span>
             {% endif %}
         </p>
     </div>

@@ -1,3 +1,134 @@
+/* Общие стили */
+body {
+    font-family: 'Arial', sans-serif;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+/* Hero Section */
+.hero {
+    background: url("../img/flowers.jpg") no-repeat center center;
+    background-size: cover;
+    color: #fff;
+    padding: 120px 0;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.hero::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(255, 255, 255, 0.1); /* Slight overlay */
+    z-index: 1;
+}
+
+.hero .container {
+    position: relative;
+    z-index: 2;
+}
+
+.hero h1 {
+    font-size: 3.5rem;
+    margin-bottom: 20px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.hero p {
+    font-size: 1.8rem;
+    font-weight: 500;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+/* Navbar */
+.navbar {
+    padding: 1rem 0;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    transition: background-color 0.3s;
+}
+
+.navbar-brand {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #e91e63 !important; /* Fuchsia for brand */
+}
+
+.navbar-nav .nav-link {
+    color: #777 !important;
+    padding: 0.5rem 1rem;
+    transition: color 0.3s;
+}
+
+.navbar-nav .nav-link:hover {
+    color: #e91e63 !important; /* Fuchsia on hover */
+}
+
+.navbar-toggler {
+    border-color: #e91e63 !important;
+}
+
+/* Product Card */
+.card {
+    border: none;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
+    transition: transform 0.2s ease-in-out;
+}
+
+.card:hover {
+    transform: scale(1.03);
+}
+
+.card-img-top {
+    border-radius: 0.25rem;
+}
+
+.card-title {
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: #333;
+}
+
+.card-text {
+    font-size: 1rem;
+    color: #555;
+}
+
+.available {
+    color: green;
+}
+
+.not-available {
+    color: maroon;
+}
+
+.card-footer {
+    background-color: transparent;
+    border-top: none;
+    color: #777;
+}
+
+/* Sidebar */
+.sidebar-card {
+    border: none;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.sidebar-card-header {
+    background-color: #f8f9fa;
+    color: #333;
+    font-weight: 600;
+    padding: 1rem;
+    border-bottom: 1px solid #eee;
+}
+
+.sidebar-card-body {
+    padding: 1rem;
+    color: #555;
+}
+
 /* Стилизация кнопки подключения к Telegram */
 .btn-bordered {
     border-width: 3px; /* Толщина ободка */
@@ -18,82 +149,113 @@
     }
 }
 
-/* Стилизация главного экрана */
-.hero h1 {
-            font-size: 3rem;
-            margin-bottom: 20px;
-        }
-.hero p {
-            font-size: 1.5rem;
-        }
+/* register.html */
+.register-card {
+    border: none;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
+    border-radius: 0.5rem;
+}
 
-/* Стилизация меню */
-.navbar-light {
-        background-color: #f8e8f9; /* Soft pink background */
+.register-card .card-title {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: #333;
+    margin-bottom: 1.5rem;
+}
+
+.register-card .form-group {
+    margin-bottom: 1.5rem;
+}
+
+.register-card .form-label {
+    font-weight: 500;
+    color: #555;
+    margin-bottom: 0.5rem;
+}
+
+.register-card .form-control {
+    border: 1px solid #ddd;
+    border-radius: 0.3rem; /* Slightly more rounded */
+    padding: 0.75rem;
+    font-size: 1rem;
+    box-shadow: none; /* Remove default box-shadow */
+}
+
+.register-card .form-control:focus {
+    border-color: #e91e63; /* Fuchsia on focus */
+    outline: none;
+    box-shadow: 0 0 0 0.2rem rgba(233, 30, 99, 0.25); /* Subtle focus shadow */
+}
+
+.register-button {
+    background-color: #e91e63; /* Fuchsia */
+    color: #fff;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.25rem;
+    font-weight: 600;
+    transition: background-color 0.3s;
+}
+
+.register-button:hover {
+    background-color: #c2185b; /* Darker Fuchsia */
+}
+
+/* Footer */
+.footer {
+    background-color: #f8f9fa;
+    color: #777;
+    padding: 1rem 0;
+}
+
+/* Dark Theme */
+@media (prefers-color-scheme: dark) {
+    body {
+        background-color: #222;
+        color: #eee;
     }
-.navbar-light .navbar-brand,
-.navbar-light .nav-link {
-        color: #9b59b6; /* Violet color for text */
-    }
-.navbar-light .nav-link:hover {
-        color: #6c3483; /* Darker violet on hover */
-    }
-.navbar-light .navbar-toggler {
-        border-color: #9b59b6; /* Violet color for the toggler */
+
+    .hero::before {
+        background-color: rgba(0, 0, 0, 0.5); /* Darker overlay */
     }
 
-/* используем один элемент `span` и два псевдоэлемента `::before` и `::after` для создания трех полосок,
-которые визуально напоминают иконку меню. Полоски располагаются на разных вертикальных уровнях
-(`top: 7px`, `top: 15px`, и `top: 23px`) внутри контейнера размером 30x30 пикселей.
-Цвет полосок задан с помощью `background-color` */
-.navbar-light .navbar-toggler-icon {
-    display: inline-block;
-    width: 30px;
-    height: 30px;
-    position: relative;
+    .card {
+        background-color: #333;
+        color: #eee;
+    }
+
+    .card-title,
+    .sidebar-card-header {
+        color: #fff;
+    }
+
+    .sidebar-card {
+        background-color: #444;
+    }
+
+    .footer {
+        background-color: #333;
+        color: #ccc;
+    }
+
+    .register-card {
+        background-color: #333;
+        color: #eee;
+    }
+
+    .register-card .card-title {
+        color: #fff;
+    }
+
+    .register-card .form-label {
+        color: #ccc;
+    }
+
+    .register-card .form-control {
+        background-color: #444;
+        color: #eee;
+        border-color: #555;
+    }
 }
 
-.navbar-light .navbar-toggler-icon::before,
-.navbar-light .navbar-toggler-icon::after,
-.navbar-light .navbar-toggler-icon span {
-    content: '';
-    display: block;
-    width: 100%;
-    height: 4px;
-    background-color: rgba(91, 44, 111, 1);
-    position: absolute;
-    left: 0;
-    transition: all 0.2s;
-}
 
-.navbar-light .navbar-toggler-icon::before {
-    top: 7px;
-}
-
-.navbar-light .navbar-toggler-icon span {
-    top: 15px;
-}
-
-.navbar-light .navbar-toggler-icon::after {
-    top: 23px;
-}
-
-/* Боковая панель главной страницы */
-.sidebar-card {
-    background-color: rgba(50, 50, 50, 0.8); /* Дымчатый фон */
-    color: #f8f9fa; /* Светлый текст */
-    border: none; /* Убираем стандартную границу */
-}
-
-.sidebar-card-header {
-    background-color: rgba(60, 60, 60, 0.9); /* Темный дымчатый цвет для заголовка */
-    border-bottom: 1px solid #6c757d; /* Легкая граница под заголовком */
-}
-
-.sidebar-card-body {
-    background-color: rgba(50, 50, 50, 0.8); /* Дымчатый фон для тела карты */
-}
-
-.sidebar-card-text {
-    color: #adb5bd; /* Светло-серый текст для контраста */
-}

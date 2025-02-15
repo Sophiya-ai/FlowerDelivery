@@ -18,7 +18,11 @@ class UserProfileCreationForm(UserCreationForm):
             ('company', 'Компания'),
             ('individual', 'Частное лицо')
         ],
-        label="Тип пользователя"
+        label="Тип пользователя",
+        widget=forms.Select(attrs={
+            'class': 'form-control',  # Класс для стилизации
+            'style': 'width: 300px; height: 40px; font-size: 12px;'  # Устанавливаем ширину и размер шрифта
+        })
     )
 
     class Meta(UserCreationForm.Meta):
@@ -60,12 +64,12 @@ class UserFormInOrderHistory(ModelForm):
                 user.save()  # Сохраняем UserProfile с обновленными именем и фамилией
             return user
 
-        widgets = {
-            'first_name': TextInput(attrs={'class': 'form-control', 'placeholder': 'Имя'}),
-            'last_name': TextInput(attrs={'class': 'form-control', 'placeholder': 'Фамилия'}),
-            'address': TextInput(attrs={'class': 'form-control', 'placeholder': 'Адрес'}),
-            'type_of_user': Select(attrs={'class': 'form-control'}, choices=[
-                ('company', 'Компания'),
-                ('individual', 'Частное лицо'),
-            ]),
-        }
+        # widgets = {
+        #     'first_name': TextInput(attrs={'class': 'form-control', 'placeholder': 'Имя'}),
+        #     'last_name': TextInput(attrs={'class': 'form-control', 'placeholder': 'Фамилия'}),
+        #     'address': TextInput(attrs={'class': 'form-control', 'placeholder': 'Адрес'}),
+        #     'type_of_user': Select(attrs={'class': 'form-control'}, choices=[
+        #         ('company', 'Компания'),
+        #         ('individual', 'Частное лицо'),
+        #     ]),
+        #}
