@@ -2,12 +2,16 @@
 body {
     font-family: 'Arial', sans-serif;
     transition: background-color 0.3s, color 0.3s;
+    display: flex; /* Make body a flex container */
+    flex-direction: column; /* Stack children vertically */
+    min-height: 100vh; /* Ensure it covers the entire viewport height */
 }
 
 main {
     width: 100%;
     padding: 0;
     margin: 0;
+    flex: 1; /* Allow main to grow and take up remaining space */
 }
 
 
@@ -278,57 +282,6 @@ main {
     background-color: #f8f9fa;
     color: #777;
     padding: 1rem 0;
+    width: 100%; /* Ensure full width */
 }
 
-/* Dark Theme
-@media (prefers-color-scheme: dark) {
-    body {
-        background-color: #222;
-        color: #eee;
-    }
-
-    .hero::before {
-        background-color: rgba(0, 0, 0, 0.5);
-    }
-
-    .card {
-        background-color: #333;
-        color: #eee;
-    }
-
-    .card-title,
-    .sidebar-card-header {
-        color: #fff;
-    }
-
-    .sidebar-card {
-        background-color: #444;
-    }
-
-    .footer {
-        background-color: #333;
-        color: #ccc;
-    }
-
-    .register-card {
-        background-color: #333;
-        color: #eee;
-    }
-
-    .register-card .card-title {
-        color: #fff;
-    }
-
-    .register-card .form-label {
-        color: #ccc;
-    }
-
-    .register-card .form-control {
-        background-color: #444;
-        color: #eee;
-        border-color: #555;
-    }
-}
-
-
-*/

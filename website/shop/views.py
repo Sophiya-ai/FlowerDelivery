@@ -4,16 +4,17 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.utils.crypto import get_random_string
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
-from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
+from django.contrib.auth.forms import AuthenticationForm
 from django.core.paginator import Paginator
 from django.contrib.auth.decorators import login_required
+from django.conf import settings
 from django.contrib.auth import get_user_model  # Импортирована функция get_user_model из django.contrib.auth,
 # которая позволяет получить текущую модель пользователя,
 # указанную в AUTH_USER_MODEL
 
 from .models import UserProfile, Category, Product, Order, OrderItem, Review, BotUser, BotOrder
 from .forms import UserFormInOrderHistory, UserProfileCreationForm
-from django.conf import settings
+
 
 User = get_user_model()
 logger = logging.getLogger(__name__)
@@ -30,6 +31,8 @@ def index(request):
 
 def login_view(request):
     if request.method == 'POST':
+        # ниже надо передавать request в качестве первого аргумента.
+        # Это необходимо для правильной работы аутентификации с пользовательской моделью
         form = AuthenticationForm(request, data=request.POST)
         if form.is_valid():
             username = form.cleaned_data.get('username')
