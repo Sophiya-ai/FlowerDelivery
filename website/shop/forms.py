@@ -26,7 +26,6 @@ class UserProfileCreationForm(UserCreationForm):
     )
 
     class Meta(UserCreationForm.Meta):
-        model = UserProfile
         fields = UserCreationForm.Meta.fields + (
             'phone_number', 'address', 'type_of_user', 'first_name', 'last_name')  # Добавляем поля в форму
 
@@ -43,6 +42,24 @@ class UserProfileCreationForm(UserCreationForm):
 class UserFormInOrderHistory(ModelForm):
     first_name = forms.CharField(max_length=150, label='Имя')
     last_name = forms.CharField(max_length=150, label='Фамилия')
+    telegram_user = forms.CharField(widget=forms.HiddenInput())
+    phone_number = PhoneNumberField(
+        widget=TextInput(attrs={'class': 'form-control'}))
+    address = forms.CharField(widget=
+                              forms.Textarea(attrs={'rows': 2, 'cols': 10, 'class': 'form-control'}),
+                              # размер текстового поля в attrs
+                              required=False, label="Адрес")
+    type_of_user = forms.ChoiceField(
+        choices=[
+            ('company', 'Компания'),
+            ('individual', 'Частное лицо')
+        ],
+        label="Тип пользователя",
+        widget=forms.Select(attrs={
+            'class': 'form-control',  # Класс для стилизации
+            'style': 'width: 300px; height: 40px; font-size: 12px'  # Устанавливаем ширину и размер шрифта
+        })
+    )
 
     class Meta:
         model = UserProfile
