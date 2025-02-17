@@ -16,4 +16,5 @@ urlpatterns = [
     path('add_to_cart_once_more/<int:order_id>/', views.add_to_cart_once_more, name='add_to_cart_once_more'),
     path('product_reviews/<int:product_id>/', views.watch_review, name='product_reviews'),
     path('add_review/<int:product_id>/', views.add_review, name='add_review'),
+    path('catalog/', views.CatalogView.as_view(), name='catalog'),  # Используем as_view() для ListView
 ]
