@@ -19,7 +19,13 @@
                 {% for item in cart_items %}
                     <tr>
                         <td>{{ item.product.name }}</td>
-                        <td>{{ item.quantity }}</td>
+                        <td>
+                            <form method="post" action="{% url 'update_cart' item.product.id %}">
+                                {% csrf_token %}
+                                <input type="number" name="quantity" value="{{ item.quantity }}" min="1" class="form-control" style="width: 80px;">
+                                <button type="submit" class="btn btn-sm btn-primary">Обновить</button>
+                            </form>
+                        </td>
                         <td>{{ item.product.price }} руб.</td>
                         <td>{{ item.total }} руб.</td>
                         <td><a href="{% url 'remove_from_cart' item.product.id %}" class="btn btn-danger btn-sm">Удалить</a></td>
@@ -33,6 +39,34 @@
                 </tr>
             </tfoot>
         </table>
+
+        <div class="card register-card mb-3">
+            <div class="card-header sidebar-card-header">
+                <h4>Информация о доставке</h4>
+            </div>
+            <div class="card-body">
+                <form method="post" action="{% url 'process_order' %}">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label for="delivery_address">Адрес доставки:</label>
+                        <input type="text" name="delivery_address" id="delivery_address" class="form-control" value="{{ request.user.address }}" required>
+                    </div>
+                     <div class="form-group">
+                        <label for="phone_number">Номер телефона:</label>
+                        <input type="text" name="phone_number" id="phone_number" class="form-control" value="{{ request.user.phone_number }}" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="order_date">Дата доставки:</label>
+                        <input type="date" name="order_date" id="order_date" class="form-control" value="{{ today }}" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="delivery_time">Время доставки:</label>
+                        <input type="time" name="delivery_time" id="delivery_time" class="form-control" required>
+                    </div>
+                    <button type="submit" class="btn btn-success">Заказать</button>
+                </form>
+            </div>
+        </div>
     {% else %}
         <p>Ваша корзина пуста.</p>
     {% endif %}

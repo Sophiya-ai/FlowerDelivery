@@ -15,6 +15,7 @@
         {% if product.is_available %}
             <a href="{% url 'add_to_cart' product.id %}" class="btn btn-primary">В корзину</a>
         {% endif %}
+        <a href="{% url 'add_review' product.id %}" class="btn btn-primary">Отзывы</a>
         <p class="product-price">
             {% if product.is_available %}
                 Цена: {{ product.price }} руб.

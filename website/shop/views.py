@@ -1,8 +1,9 @@
 import logging
+from datetime import date, datetime
 
+from django.contrib import messages
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils.crypto import get_random_string
-from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.forms import AuthenticationForm
 from django.core.paginator import Paginator
@@ -13,8 +14,7 @@ from django.contrib.auth import get_user_model  # Импортирована ф�
 # указанную в AUTH_USER_MODEL
 
 from .models import UserProfile, Category, Product, Order, OrderItem, Review, BotUser, BotOrder
-from .forms import UserFormInOrderHistory, UserProfileCreationForm
-
+from .forms import UserFormInOrderHistory, UserProfileCreationForm, ReviewForm
 
 User = get_user_model()
 logger = logging.getLogger(__name__)
@@ -51,11 +51,6 @@ def login_view(request):
     return render(request, 'shop/login.html', {'form': form})
 
 
-from django.shortcuts import render, redirect, get_object_or_404
-from .models import Product
-from django.contrib import messages
-
-
 def cart_view(request):
     cart = request.session.get('cart', {})
     cart_items = []
@@ -74,6 +69,7 @@ def cart_view(request):
     context = {
         'cart_items': cart_items,
         'total_price': total_price,
+        'today': date.today().strftime('%Y-%m-%d'),
     }
     return render(request, 'shop/cart.html', context)
 
@@ -91,14 +87,94 @@ def add_to_cart(request, product_id):
     return redirect('home')
 
 
+def update_cart(request, product_id):
+    if request.method == 'POST':
+        quantity = int(request.POST.get('quantity'))
+        if quantity > 0:
+            cart = request.session.get('cart', {})
+            cart[str(product_id)] = quantity
+            request.session['cart'] = cart
+            messages.success(request, "Количество товара обновлено")
+        else:
+            messages.error(request, "Количество товара должно быть больше нуля.")
+    return redirect('cart')
+
+
 def remove_from_cart(request, product_id):
     cart = request.session.get('cart', {})
+    product_id = str(product_id)  # Делаем в строкой для соответствия ключам в корзине
 
     if product_id in cart:
         del cart[product_id]
         request.session['cart'] = cart
         messages.success(request, "Товар удален из корзины")
     return redirect('cart')
+
+
+@login_required
+def process_order(request):
+    if request.method == 'POST':
+        cart = request.session.get('cart', {})
+        if not cart:
+            messages.error(request, "Корзина пуста.")
+            return redirect('cart')
+
+        delivery_address = request.POST.get('delivery_address')
+        order_date_str = request.POST.get('order_date')
+        delivery_time_str = request.POST.get('delivery_time')
+        phone_number = request.POST.get('phone_number')
+
+        try:
+            order_date = datetime.strptime(order_date_str, '%Y-%m-%d').date()
+            delivery_time = datetime.strptime(delivery_time_str, '%H:%M').time()
+        except ValueError:
+            messages.error(request, "Неверный формат даты или времени.")
+            return redirect('cart')
+
+        total_price = 0
+        order = Order.objects.create(
+            user=request.user,
+            delivery_address=delivery_address,
+            order_date=order_date,
+            total_price=0,
+            notes = f'Телефон: {phone_number}, Дата доставки: {order_date}, Время доставки: {delivery_time}'
+        )
+
+        for product_id, quantity in cart.items():
+            product = Product.objects.get(pk=product_id)
+            price = product.price
+            total_for_product = price * quantity
+            total_price += total_for_product
+
+            OrderItem.objects.create(
+                order=order,
+                product=product,
+                quantity=quantity,
+                price=price
+            )
+
+        order.total_price = total_price
+        order.save()
+
+        # Очищаем корзину
+        del request.session['cart']
+
+        # Проверка времени заказа
+        now = datetime.now().time()
+        start_time = datetime.strptime('08:00', '%H:%M').time()
+        end_time = datetime.strptime('18:00', '%H:%M').time()
+
+        if not start_time <= now <= end_time:
+            messages.info(request, "Ваш заказ принят, но будет обработан в рабочее время (с 8:00 до 18:00).")
+
+        return redirect('order_success', order_id=order.id)
+    else:
+        return redirect('cart')
+
+
+def order_success(request, order_id):
+    order = get_object_or_404(Order, pk=order_id)
+    return render(request, 'shop/order_success.html', {'order': order})
 
 
 def register(request):
@@ -147,3 +223,37 @@ def view_orders_and_individual_data(request):
                    'user': request.user,
                    'telegram_bot_url': telegram_bot_url,
                    'order_history': order_history_data})
+
+
+def add_to_cart_once_more(request, order_id):
+    order = get_object_or_404(Order, pk=order_id)
+    cart = request.session.get('cart', {})
+
+    for item in order.items.all():
+        product_id = str(item.product.id)
+        quantity = item.quantity
+
+        if product_id in cart:
+            cart[product_id] += quantity
+        else:
+            cart[product_id] = quantity
+
+    request.session['cart'] = cart
+    messages.success(request, f'Товары из заказа №{order.id} добавлены в корзину!')
+    return redirect('cart')
+
+
+def add_review(request, product_id):
+    product = get_object_or_404(Product, pk=product_id)
+    if request.method == 'POST':
+        form = ReviewForm(request.POST)
+        if form.is_valid():
+            review = form.save(commit=False)
+            review.user = request.user.userprofile
+            review.product = product
+            review.save()
+            messages.success(request, "Спасибо за ваш отзыв!")
+            return redirect('product_detail', product_id=product_id)  #  Перенаправление на страницу товара
+    else:
+        form = ReviewForm()
+    return render(request, 'shop/review_form.html', {'form': form, 'product': product})

@@ -1,10 +1,14 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+{% extends 'shop/base.html' %}
 
-</body>
-</html>
+{% block title %}Отзывы о товаре: {{ product.name }}{% endblock %}
+
+{% block content %}
+
+
+    <h1>Оставить отзыв</h1>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-primary">Отправить отзыв</button>
+    </form>
+{% endblock %}

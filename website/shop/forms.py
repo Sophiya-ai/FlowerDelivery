@@ -3,7 +3,7 @@ from phonenumber_field.formfields import PhoneNumberField
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
 
-from .models import UserProfile
+from .models import UserProfile, Review
 
 
 class UserProfileCreationForm(UserCreationForm):
@@ -78,3 +78,11 @@ class UserFormInOrderHistory(ModelForm):
         if commit:
             user.save()  # Сохраняем UserProfile с обновленными именем и фамилией
         return user
+
+
+class ReviewForm(forms.ModelForm):
+    class Meta:
+        model = Review
+        fields = ['rating', 'comment']
+
+

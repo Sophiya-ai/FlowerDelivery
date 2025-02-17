@@ -1,10 +1,14 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+{% extends 'shop/base.html' %}
 
-</body>
-</html>
+{% block title %}Заказ успешно оформлен{% endblock %}
+
+{% block content %}
+    <h1>Заказ успешно оформлен!</h1>
+    <p>Номер вашего заказа: {{ order.id }}</p>
+    <p>Дата заказа: {{ order.order_date }}</p>
+    <p>Адрес доставки: {{ order.delivery_address }}</p>
+    <p>Общая сумма заказа: {{ order.total_price }} руб.</p>
+    <p>Статус заказа: {{ order.get_status_display }}</p>
+    <p>Примечания: {{ order.notes }}</p>
+    <a href="{% url 'home' %}" class="btn btn-primary">На главную</a>
+{% endblock %}
