@@ -68,18 +68,27 @@
                         </div>
                         <div class="card-body">
                             {% if order_history %}
+                            <div class="order-history-scrollable">
                                 <ul class="list-group">
                                     {% for order in order_history %}
                                         <li class="list-group-item">
                                             <strong>Заказ №{{ order.id }}</strong> от {{ order.order_date|date:"d.m.Y H:i" }}<br>
                                             <strong>Адрес доставки:</strong> {{ order.delivery_address }}<br>
                                             <strong>Общая цена:</strong> {{ order.total_price }}<br>
-
                                             <strong>Статус:</strong> {{ order.get_status_display }}<br>
+                                            <strong>Позиции заказа:</strong>
+                                            <ul>
+                                                {% for item in order.items.all %}
+                                                    <li>
+                                                        {{ item.product.name }} - {{ item.quantity }} шт. ({{ item.get_total_price }} руб.)
+                                                    </li>
+                                                {% endfor %}
+                                            </ul>
                                             <a href="{% url 'add_to_cart_once_more' order.id %}" class="btn btn-primary">Повторить</a>
                                         </li>
                                     {% endfor %}
                                 </ul>
+                            </div>
                             {% else %}
                                 <p>Нет истории заказов.</p>
                             {% endif %}

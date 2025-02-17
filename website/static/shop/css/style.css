@@ -290,6 +290,14 @@ main {
     background-color: #c2185b; /* Darker Fuchsia */
 }
 
+/* order-history */
+.order-history-scrollable {
+    max-height: 300px; /*  максимальная высота */
+    overflow-y: auto; /* Добавляем вертикальную полосу прокрутки, когда контент превышает высоту */
+    overflow-x: hidden; /* Предотвращаем появление горизонтальной полосы прокрутки */
+    padding-right: 10px; /* Небольшой отступ справа, чтобы полоса прокрутки не перекрывала контент */
+}
+
 /* Footer */
 .footer {
     background-color: #f8f9fa;

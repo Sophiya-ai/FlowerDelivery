@@ -1,16 +1,17 @@
+{% load custom_filters %}
+
 <div class="card h-100 d-flex flex-column">
     <img src="{{ product.image.url }}" class="card-img-top fixed-image" alt="{{ product.name }}">
     <div class="card-body flex-grow-1">
             <div class="star-rating">
                 {% for i in "12345" %} <!-- отображение 5 звездочек -->
-                    {% if product.average_rating >= forloop.counter %}
+                    {% if products_ratings|get_item:product.id >= forloop.counter %}
                         <span class="filled">&#9733;</span> <!-- HTML-код символа звездочки -->
                     {% else %}
                         <span class="empty">&#9733;</span>
                     {% endif %}
                 {% endfor %}
-            </div>
-    </div><br>
+            </div><br>
         <h5 class="card-title">{{ product.name }}</h5>
         <p class="card-text">{{ product.description|truncatewords:18 }}</p>
     </div>

@@ -26,20 +26,25 @@ def index(request):
     paginator = Paginator(products, 6)  # Показывать 6 товаров на странице
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
-    telegram_bot_url = f"https://t.me/{settings.TELEGRAM_BOT_USERNAME}?start={request.user.id}"
-    products_ratings = []
-    for product in products:
-        reviews = Review.objects.filter(product=product)
-        if reviews:
-            average_rating = reviews.aggregate(Avg('rating'))['rating__avg']
 
-        else:
+    telegram_bot_url = f"https://t.me/{settings.TELEGRAM_BOT_USERNAME}?start={request.user.id}"
+
+    products_ratings = {}  #  словарь средних рейтингов
+
+    for product in page_obj: # Перебираем только товары на текущей странице
+
+        # Благодаря определению related_name="reviews" в модели Review на ForeignKey к Product,
+        # получаем все отзывы, связанные с данным продуктом. вычисляет средний рейтинг для каждого товара,
+        # используя связь product.reviews и агрегирующую функцию Avg('rating'). Результат сохраняется
+        # в словаре products_ratings, где ключом является product.id
+        average_rating = product.reviews.aggregate(Avg('rating'))['rating__avg']
+        if average_rating is None:  # Если у продукта нет отзывов, то рейтинг равен 0
             average_rating = 0
-        products_ratings.append({
-            'product': product,
-            'average_rating': average_rating,
-        })
-    return render(request, 'shop/index.html', {'telegram_bot_url': telegram_bot_url, 'products': page_obj})
+
+        products_ratings[product.id] = average_rating  # в products_ratings теперь хранится id: рейтинг
+    return render(request, 'shop/index.html', {'telegram_bot_url': telegram_bot_url,
+                                               'products': page_obj,
+                                               'products_ratings': products_ratings})
 
 
 def login_view(request):
