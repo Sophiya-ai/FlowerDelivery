@@ -12,6 +12,7 @@ from django.conf import settings
 from django.contrib.auth import get_user_model  # Импортирована функция get_user_model из django.contrib.auth,
 # которая позволяет получить текущую модель пользователя,
 # указанную в AUTH_USER_MODEL
+from django.db.models import Avg
 
 from .models import UserProfile, Category, Product, Order, OrderItem, Review, BotUser, BotOrder
 from .forms import UserFormInOrderHistory, UserProfileCreationForm, ReviewForm
@@ -26,6 +27,18 @@ def index(request):
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
     telegram_bot_url = f"https://t.me/{settings.TELEGRAM_BOT_USERNAME}?start={request.user.id}"
+    products_ratings = []
+    for product in products:
+        reviews = Review.objects.filter(product=product)
+        if reviews:
+            average_rating = reviews.aggregate(Avg('rating'))['rating__avg']
+
+        else:
+            average_rating = 0
+        products_ratings.append({
+            'product': product,
+            'average_rating': average_rating,
+        })
     return render(request, 'shop/index.html', {'telegram_bot_url': telegram_bot_url, 'products': page_obj})
 
 
