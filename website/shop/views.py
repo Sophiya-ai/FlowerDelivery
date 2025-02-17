@@ -137,7 +137,7 @@ def process_order(request):
             delivery_address=delivery_address,
             order_date=order_date,
             total_price=0,
-            notes = f'Телефон: {phone_number}, Дата доставки: {order_date}, Время доставки: {delivery_time}'
+            notes=f'Телефон: {phone_number}, Дата доставки: {order_date}, Время доставки: {delivery_time}'
         )
 
         for product_id, quantity in cart.items():
@@ -243,17 +243,27 @@ def add_to_cart_once_more(request, order_id):
     return redirect('cart')
 
 
+def watch_review(request, product_id):
+    product = get_object_or_404(Product, pk=product_id)
+    reviews = Review.objects.filter(product=product).order_by('-date')
+
+    return render(request, 'shop/product_reviews.html', {'product': product, 'reviews': reviews})
+
+
 def add_review(request, product_id):
     product = get_object_or_404(Product, pk=product_id)
+
     if request.method == 'POST':
         form = ReviewForm(request.POST)
         if form.is_valid():
             review = form.save(commit=False)
-            review.user = request.user.userprofile
+            review.user = request.user
             review.product = product
             review.save()
             messages.success(request, "Спасибо за ваш отзыв!")
-            return redirect('product_detail', product_id=product_id)  #  Перенаправление на страницу товара
+            return redirect('product_reviews', product_id=product_id)  # Обновляем страницу
     else:
         form = ReviewForm()
-    return render(request, 'shop/review_form.html', {'form': form, 'product': product})
+    return render(request, 'shop/review_form.html', {
+                                                        'form': form,
+                                                        'product': product})

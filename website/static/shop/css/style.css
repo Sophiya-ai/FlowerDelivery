@@ -119,6 +119,19 @@ main {
     object-fit: cover;
 }
 
+.star-rating {
+    font-size: 1.2em;
+    color: #ffc107; /* Цвет звездочек (золотой) */
+}
+
+.star-rating .filled {
+    opacity: 1; /* Полностью закрашенная звезда */
+}
+
+.star-rating .empty {
+    opacity: 0.2; /* Полупрозрачная звезда */
+}
+
 .card-body {
     display: flex;
     flex-direction: column;

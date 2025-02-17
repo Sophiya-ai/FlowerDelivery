@@ -74,7 +74,8 @@
                                             <strong>Заказ №{{ order.id }}</strong> от {{ order.order_date|date:"d.m.Y H:i" }}<br>
                                             <strong>Адрес доставки:</strong> {{ order.delivery_address }}<br>
                                             <strong>Общая цена:</strong> {{ order.total_price }}<br>
-                                            <strong>Статус:</strong> {{ order.get_status_display }}
+
+                                            <strong>Статус:</strong> {{ order.get_status_display }}<br>
                                             <a href="{% url 'add_to_cart_once_more' order.id %}" class="btn btn-primary">Повторить</a>
                                         </li>
                                     {% endfor %}

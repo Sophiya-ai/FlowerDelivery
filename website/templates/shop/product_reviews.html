@@ -1,0 +1,31 @@
+{% extends 'shop/base.html' %}
+
+{% block title %}{% endblock %}
+
+{% block content %}
+    <div class="col-12">
+                    <a href="{% url 'add_review' product.id %}" class="btn btn-primary">Оставить отзыв</a>
+                    <div class="card register-card mb-3">
+                        <div class="card-header sidebar-card-header">
+                            <h4>Отзывы о товаре: {{ product.name }}</h4>
+                        </div>
+                        <div class="card-body">
+                            {% if reviews %}
+                                <ul class="list-group">
+                                    {% for review in reviews %}
+                                        <li class="list-group-item">
+                                            <p><strong>Имя:</strong> {{ review.user }}</p>
+                                            <p><strong>Отзыв:</strong> {{ review.comment }}</p>
+                                            <p><strong>Рейтинг:</strong> {{ review.rating }}</p>
+                                        </li>
+                                    {% endfor %}
+                                </ul>
+                            {% else %}
+                                <p>Нет отзывов.</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+
+{% endblock %}

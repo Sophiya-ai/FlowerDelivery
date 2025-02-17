@@ -1,6 +1,15 @@
 <div class="card h-100 d-flex flex-column">
     <img src="{{ product.image.url }}" class="card-img-top fixed-image" alt="{{ product.name }}">
     <div class="card-body flex-grow-1">
+            <div class="star-rating">
+        {% for i in "12345" %} <!-- отображение 5 звездочек -->
+            {% if product.average_rating >= forloop.counter %}
+                <span class="filled">&#9733;</span> <!-- HTML-код символа звездочки -->
+            {% else %}
+                <span class="empty">&#9733;</span>
+            {% endif %}
+        {% endfor %}
+    </div><br>
         <h5 class="card-title">{{ product.name }}</h5>
         <p class="card-text">{{ product.description|truncatewords:18 }}</p>
     </div>
@@ -15,7 +24,7 @@
         {% if product.is_available %}
             <a href="{% url 'add_to_cart' product.id %}" class="btn btn-primary">В корзину</a>
         {% endif %}
-        <a href="{% url 'add_review' product.id %}" class="btn btn-primary">Отзывы</a>
+        <a href="{% url 'product_reviews' product.id %}" class="btn btn-primary">Отзывы</a>
         <p class="product-price">
             {% if product.is_available %}
                 Цена: {{ product.price }} руб.
