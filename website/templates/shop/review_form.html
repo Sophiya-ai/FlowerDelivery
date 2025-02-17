@@ -1,15 +1,34 @@
 {% extends 'shop/base.html' %}
+{% load widget_tweaks %}
 
 {% block title %}{% endblock %}
 
 {% block content %}
+<div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-md-9">  <!-- Ширина колонки - ширина карточки регстрации -->
+                <div class="card register-card">
+                    <div class="card-body">
+                        <h2 class="card-title text-center">Оставить отзыв</h2>
+                        <form method="post">
+                            {% csrf_token %}
+                            {% for field in form %}
+                                <div class="form-group">
+                                    <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+                                    {{ field|add_class:"form-control" }}
+                                    {% if field.errors %}
+                                        <div class="alert alert-danger">
+                                            {{ field.errors|striptags }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            {% endfor %}
+                            <button type="submit" class="btn btn-primary register-button">Отправить отзыв</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
-
-
-    <h1>Оставить отзыв</h1>
-    <form method="post">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit" class="btn btn-primary">Отправить отзыв</button>
-    </form>
 {% endblock %}
