@@ -18,4 +18,5 @@ urlpatterns = [
     path('add_review/<int:product_id>/', views.add_review, name='add_review'),
     path('catalog/', views.catalog_view, name='catalog'),
     path('adminpage/', views.adminpage_view, name='adminpage'),
+    path('update_order_status/<int:order_id>/', views.update_order_status, name='update_order_status'),
 ]

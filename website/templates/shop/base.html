@@ -16,12 +16,14 @@
         {% include 'shop/repeated_fragments/navbar.html' %}
     </header>
 
-    <section class="hero">
-        <div class="container">
-            <h1><strong>Добро пожаловать в наш цветочный магазин!</strong></h1>
-            <p><strong>Самые свежие и красивые цветы для вас.</strong></p>
-        </div>
-    </section><br>
+    {% if request.user.username != 'admin' %}
+        <section class="hero">
+            <div class="container">
+                <h1><strong>Добро пожаловать в наш цветочный магазин!</strong></h1>
+                <p><strong>Самые свежие и красивые цветы для вас.</strong></p>
+            </div>
+        </section><br>
+    {% endif %}
 
     <main class="container-fluid">
         {% include 'shop/repeated_fragments/messages.html' %}
@@ -31,20 +33,22 @@
                 {% block content %}
                 {% endblock %}
             </div>
-            <div class="col-md-4 d-flex justify-content-end">
-                <!-- Боковая панель -->
-                <div class="card mb-8 sidebar-card">
-                    <div class="card-header sidebar-card-header">
-                        Ссылки
-                    </div>
-                    <div class="card-body sidebar-card-body">
-                        <a href="{{ telegram_bot_url }}" class="card-text sidebar-card-text">Telegram-бот</a>
-                    </div>
-                    <div class="card-body sidebar-card-body">
-                        <p class="card-text sidebar-card-text">Новости </p>
+            {% if request.user.username != 'admin' %}
+                <div class="col-md-4 d-flex justify-content-end">
+                    <!-- Боковая панель -->
+                    <div class="card mb-8 sidebar-card">
+                        <div class="card-header sidebar-card-header">
+                            Ссылки
+                        </div>
+                        <div class="card-body sidebar-card-body">
+                            <a href="{{ telegram_bot_url }}" class="card-text sidebar-card-text">Telegram-бот</a>
+                        </div>
+                        <div class="card-body sidebar-card-body">
+                            <p class="card-text sidebar-card-text">Новости </p>
+                        </div>
                     </div>
                 </div>
-            </div>
+            {% endif %}
         </div>
     </main>
 

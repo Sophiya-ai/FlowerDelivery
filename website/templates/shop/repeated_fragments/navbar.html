@@ -7,15 +7,17 @@
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav">
-                <li class="nav-item active">
-                    <a class="nav-link" href="{% url 'home' %}">Главная</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{% url 'catalog' %}">Каталог</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#footer">Контакты</a>
-                </li>
+                {% if request.user.username != 'admin' %}
+                    <li class="nav-item active">
+                        <a class="nav-link" href="{% url 'home' %}">Главная</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'catalog' %}">Каталог</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#footer">Контакты</a>
+                    </li>
+                {% endif %}
             </ul>
             <ul class="navbar-nav ml-auto">
                 {% if user.is_authenticated %}
@@ -23,16 +25,22 @@
                         <a class="nav-link" href="#">Привет, {{ user.username }}!</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'individual_data' %}">Личный кабинет</a>
+                        {% if request.user.username == 'admin' %}
+                            <a class="nav-link" href="{% url 'adminpage' %}">Кабинет администратора</a>
+                        {% else %}
+                            <a class="nav-link" href="{% url 'individual_data' %}">Личный кабинет</a>
+                        {% endif %}
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'cart' %}">
-                            Корзина
-                            {% if request.session.cart %}
-                                <span class="badge badge-primary">{{ request.session.cart|length }}</span>
-                            {% endif %}
-                        </a>
-                    </li>
+                    {% if request.user.username != 'admin' %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'cart' %}">
+                                Корзина
+                                {% if request.session.cart %}
+                                    <span class="badge badge-primary">{{ request.session.cart|length }}</span>
+                                {% endif %}
+                            </a>
+                        </li>
+                    {% endif %}
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'logout' %}">Выйти</a>
                     </li>
@@ -40,9 +48,11 @@
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'login' %}">Войти</a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'register' %}">Регистрация</a>
-                    </li>
+                    {% if request.user.username != 'admin' %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'register' %}">Регистрация</a>
+                        </li>
+                    {% endif %}
                 {% endif %}
             </ul>
         </div>

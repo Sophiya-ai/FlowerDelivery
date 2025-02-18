@@ -7,10 +7,6 @@
 {% block content %}
     <main class="container-fluid">
         <div class="container mt-4">
-            <div class="text-center mb-4">
-                <a href="{{ telegram_bot_url }}" class="btn btn-info btn-blinking btn-bordered">Telegram бот сайта для отслеживания заказов</a>
-            </div>
-
             <div class="row">
                 <div class="col-md-6">
                     <div class="card register-card mb-3">
@@ -72,10 +68,11 @@
                                 <ul class="list-group">
                                     {% for order in order_history %}
                                         <li class="list-group-item">
+
                                             <strong>Заказ №{{ order.id }}</strong> от {{ order.order_date|date:"d.m.Y H:i" }}
                                             <strong>Адрес доставки:</strong> {{ order.delivery_address }}
                                             <strong>Общая цена:</strong> {{ order.total_price }}
-                                            <strong>Статус:</strong> {{ order.get_status_display }}<br>
+                                            <br>
                                             <strong>Позиции заказа:</strong>
                                             <ul>
                                                 {% for item in order.items.all %}
@@ -84,6 +81,21 @@
                                                     </li>
                                                 {% endfor %}
                                             </ul>
+
+                                            <!-- Форма для изменения статуса заказа админом  -->
+                                            <form method="post" action="{% url 'update_order_status' order.id %}">
+                                                {% csrf_token %}
+                                                <strong>Статус:</strong>
+                                                <select name="status">
+                                                    {% for status_code, status_name in order.STATUS_CHOICES %}
+                                                        <option value="{{ status_code }}" {% if order.status == status_code %}selected{% endif %}>
+                                                            {{ status_name }}
+                                                        </option>
+                                                    {% endfor %}
+                                                </select>
+                                                <button type="submit" class="btn btn-sm btn-primary">Изменить статус</button>
+                                            </form>
+
                                         </li>
                                     {% endfor %}
                                 </ul>

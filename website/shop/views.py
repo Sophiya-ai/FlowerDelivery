@@ -292,6 +292,15 @@ def adminpage_view(request):
                    'order_history': order_history_data})
 
 
+def update_order_status(request, order_id):
+    order = get_object_or_404(Order, id=order_id)
+    if request.method == 'POST':
+        new_status = request.POST.get('status')
+        order.status = new_status
+        order.save()
+        return redirect('adminpage')  # обратно на страницу с историей заказов
+    return redirect('adminpage')
+
 
 def add_to_cart_once_more(request, order_id):
     order = get_object_or_404(Order, pk=order_id)
