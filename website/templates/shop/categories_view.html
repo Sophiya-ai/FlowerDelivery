@@ -1,0 +1,28 @@
+{% extends 'shop/base.html' %}
+{% load custom_filters %}
+
+{% block title %}Каталог товаров{% endblock %}
+
+{% block content %}
+
+    {% for category in categories %}
+        <div class="category-section mb-4">  <!-- Общий контейнер для категории -->
+            <h2 class="category-name">{{ category.name }}</h2>
+            <p class="category-description">{{ category.description }}</p>
+
+            {% with products=products_by_category|get_item:category %}
+                {% if products %}
+                    <div class="catalog-scrollable">  <!-- Контейнер со скроллом -->
+                            {% for product in products %}
+                                <div class="card-container">
+                                    {% include 'shop/repeated_fragments/product_card.html' %}
+                                </div>
+                            {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="empty">Нет товаров в данной категории.</p>
+                {% endif %}
+            {% endwith %}
+        </div>
+    {% endfor %}
+{% endblock %}

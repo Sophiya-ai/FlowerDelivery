@@ -1,5 +1,4 @@
 {% extends 'shop/base.html' %}
-{% load widget_tweaks %}
 
 {% block title %}
     <title>Личная страница пользователя</title>
@@ -72,9 +71,9 @@
                                 <ul class="list-group">
                                     {% for order in order_history %}
                                         <li class="list-group-item">
-                                            <strong>Заказ №{{ order.id }}</strong> от {{ order.order_date|date:"d.m.Y H:i" }}<br>
-                                            <strong>Адрес доставки:</strong> {{ order.delivery_address }}<br>
-                                            <strong>Общая цена:</strong> {{ order.total_price }}<br>
+                                            <strong>Заказ №{{ order.id }}</strong> от {{ order.order_date|date:"d.m.Y H:i" }}
+                                            <strong>Адрес доставки:</strong> {{ order.delivery_address }}
+                                            <strong>Общая цена:</strong> {{ order.total_price }}
                                             <strong>Статус:</strong> {{ order.get_status_display }}<br>
                                             <strong>Позиции заказа:</strong>
                                             <ul>

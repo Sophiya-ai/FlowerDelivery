@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Pacifico&display=swap')
+
 /* Общие стили */
 body {
     font-family: 'Arial', sans-serif;
@@ -94,7 +96,7 @@ main {
     display: flex;
     flex-wrap: wrap;
     justify-content: space-between;
-    gap: 40px;
+    gap: 20px;
 }
 
 .card {
@@ -292,7 +294,7 @@ main {
 
 /* order-history */
 .order-history-scrollable {
-    max-height: 300px; /*  максимальная высота */
+    max-height: 200px; /*  максимальная высота */
     overflow-y: auto; /* Добавляем вертикальную полосу прокрутки, когда контент превышает высоту */
     overflow-x: hidden; /* Предотвращаем появление горизонтальной полосы прокрутки */
     padding-right: 10px; /* Небольшой отступ справа, чтобы полоса прокрутки не перекрывала контент */
@@ -306,3 +308,36 @@ main {
     width: 100%; /* Ensure full width */
 }
 
+/* catalog */
+.category-section {
+    border-bottom: 1px solid #ddd !important; /* Разделитель между категориями */
+    padding-bottom: 20px;
+    margin-bottom: 20px;
+}
+
+.category-name {
+    font-size: 1.8rem;
+    font-weight: bold;
+    margin-bottom: 10px;
+    font-family: 'Pacifico', cursive !important;
+}
+
+.empty {
+    color: maroon;
+}
+
+.catalog-scrollable {
+    overflow-x: auto; /* Горизонтальная прокрутка */
+    white-space: nowrap; /*  Чтобы карточки отображались в строку */
+    padding-bottom: 10px; /*  Отступ, чтобы полоса прокрутки не перекрывала карточки */
+    margin-left: -5px; /* компенсация отступа для product-card */
+    margin-right: -5px; /* компенсация отступа для product-card */
+    max-width: 1180px; /* максимальная ширина */
+    margin: 0 auto;   /* Центрирование контейнера */
+}
+
+.catalog-scrollable .card-container {
+    display: inline-flex; /*  Чтобы карточки отображались в ряд */
+    gap: 20px;  /*  Отступ между карточками */
+    padding: 0 5px; /* компенсация отступа для product-card */
+}

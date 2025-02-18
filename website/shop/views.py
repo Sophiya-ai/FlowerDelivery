@@ -47,6 +47,34 @@ def index(request):
                                                'products_ratings': products_ratings})
 
 
+def catalog_view(request):
+    categories = Category.objects.all()
+    products_by_category = {}
+    products_ratings = {}  # словарь средних рейтингов
+
+    for category in categories:
+        products_by_category[category] = Product.objects.filter(category=category).order_by('-is_available')
+
+        for product in products_by_category[category]:  # Перебираем только товары текущей категории
+
+            # Благодаря определению related_name="reviews" в модели Review на ForeignKey к Product,
+            # получаем все отзывы, связанные с данным продуктом. вычисляет средний рейтинг для каждого товара,
+            # используя связь product.reviews и агрегирующую функцию Avg('rating'). Результат сохраняется
+            # в словаре products_ratings, где ключом является product.id
+            average_rating = product.reviews.aggregate(Avg('rating'))['rating__avg']
+            if average_rating is None:  # Если у продукта нет отзывов, то рейтинг равен 0
+                average_rating = 0
+
+            products_ratings[product.id] = average_rating  # в products_ratings теперь хранится id: рейтинг
+
+    context = {
+        'categories': categories,
+        'products_by_category': products_by_category,
+        'products_ratings': products_ratings,
+    }
+    return render(request, 'shop/categories_view.html', context)
+
+
 def login_view(request):
     if request.method == 'POST':
         # ниже надо передавать request в качестве первого аргумента.
