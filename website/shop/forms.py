@@ -82,10 +82,11 @@ class UserFormInOrderHistory(ModelForm):
 
 
 class AdminForm(ModelForm):
-    first_name = forms.CharField(max_length=150, label='Имя')
-    last_name = forms.CharField(max_length=150, label='Фамилия')
+    first_name = forms.CharField(max_length=150, required=False, label='Имя')
+    last_name = forms.CharField(max_length=150, required=False, label='Фамилия')
+
     phone_number = PhoneNumberField(
-        widget=TextInput(attrs={'class': 'form-control'}))
+        widget=TextInput(attrs={'class': 'form-control'}), required=False, label="Телефон")
     address = forms.CharField(widget=
                               forms.Textarea(attrs={'rows': 2, 'cols': 10, 'class': 'form-control'}),
                               # размер текстового поля в attrs
@@ -93,7 +94,7 @@ class AdminForm(ModelForm):
 
     class Meta:
         model = UserProfile
-        fields = ['first_name', 'last_name', 'phone_number', 'address', 'type_of_user','telegram_user']
+        fields = ['first_name', 'last_name', 'phone_number', 'address', 'type_of_user', 'telegram_user']
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

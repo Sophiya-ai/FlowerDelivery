@@ -15,7 +15,7 @@ from django.contrib.auth import get_user_model  # Импортирована ф�
 from django.db.models import Avg
 
 from .models import UserProfile, Category, Product, Order, OrderItem, Review, BotUser, BotOrder
-from .forms import UserFormInOrderHistory, UserProfileCreationForm, ReviewForm
+from .forms import UserFormInOrderHistory, UserProfileCreationForm, ReviewForm, AdminForm
 
 User = get_user_model()
 logger = logging.getLogger(__name__)
@@ -77,8 +77,6 @@ def catalog_view(request):
 
 def login_view(request):
     if request.method == 'POST':
-        # ниже надо передавать request в качестве первого аргумента.
-        # Это необходимо для правильной работы аутентификации с пользовательской моделью
         form = AuthenticationForm(request, data=request.POST)
         if form.is_valid():
             username = form.cleaned_data.get('username')
@@ -86,7 +84,13 @@ def login_view(request):
             user = authenticate(request, username=username, password=password)
             if user is not None:
                 login(request, user)
-                return redirect('individual_data')  # Перенаправляем на Личную страницу
+                if username == 'admin':  # Проверяем логин
+                    return redirect('adminpage')  # Перенаправляем на страницу adminpage
+                else:
+                    return redirect('individual_data')  # иначе перенаправляем на Личную страницу
+            else:
+                # Обработка ошибок формы
+                messages.error(request, "Неверное имя пользователя или пароль.") # Добавлено сообщение об ошибке
         else:
             # Обработка ошибок формы
             for field, errors in form.errors.items():
@@ -226,8 +230,7 @@ def register(request):
         form = UserProfileCreationForm(request.POST)
         if form.is_valid():
             user = form.save()
-            login(request, user)  # Автоматически логиним после регистрации
-            return redirect('individual_data')  # Перенаправляем на главную страницу
+            return redirect('login')  # Перенаправляем на главную страницу
     else:
         form = UserProfileCreationForm()
     return render(request, 'shop/register.html', {'form': form})
@@ -267,6 +270,27 @@ def view_orders_and_individual_data(request):
                    'user': request.user,
                    'telegram_bot_url': telegram_bot_url,
                    'order_history': order_history_data})
+
+
+@login_required
+def adminpage_view(request):
+    if request.method == 'POST':
+        form = AdminForm(request.POST, instance=request.user)
+        if form.is_valid():
+            form.save()
+            return redirect('adminpage')  # Обновляем страницу
+    else:
+        form = AdminForm(instance=request.user)
+
+    # Получаем историю заказов и сортируем по дате (сначала новые за счет order_by('-order_date'))
+    order_history_data = Order.objects.order_by('-order_date')
+
+    # Прописываем словари для передачи информации в html-шаблон
+    return render(request, 'shop/admin.html',
+                  {'form': form,
+                   'user': request.user,
+                   'order_history': order_history_data})
+
 
 
 def add_to_cart_once_more(request, order_id):
