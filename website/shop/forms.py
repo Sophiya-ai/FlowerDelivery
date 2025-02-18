@@ -8,7 +8,7 @@ from .models import UserProfile, Review
 
 class UserProfileCreationForm(UserCreationForm):
     phone_number = PhoneNumberField(
-        widget=TextInput(attrs={'class': 'form-control'}))
+        widget=TextInput(attrs={'class': 'form-control'}), required=False, label="Телефон")
     address = forms.CharField(widget=
                               forms.Textarea(attrs={'rows': 2, 'cols': 10, 'class': 'form-control'}),
                               # размер текстового поля в attrs
@@ -17,7 +17,7 @@ class UserProfileCreationForm(UserCreationForm):
         choices=[
             ('company', 'Компания'),
             ('individual', 'Частное лицо')
-        ],
+        ], required=False,
         label="Тип пользователя",
         widget=forms.Select(attrs={
             'class': 'form-control',  # Класс для стилизации
