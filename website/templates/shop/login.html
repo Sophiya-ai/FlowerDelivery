@@ -10,11 +10,11 @@
                 <div class="card register-card">
                     <div class="card-body">
                         <h2 class="card-title text-center">Вход</h2>
-                        {% if error %}
+                        <!-- {% if error %}
                             <div class="alert alert-danger">
                                 {{ error }}
                             </div>
-                        {% endif %}
+                        {% endif %} -->
                         <form method="post">
                             {% csrf_token %}
                             {% for field in form %}

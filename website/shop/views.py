@@ -29,9 +29,9 @@ def index(request):
 
     telegram_bot_url = f"https://t.me/{settings.TELEGRAM_BOT_USERNAME}?start={request.user.id}"
 
-    products_ratings = {}  #  словарь средних рейтингов
+    products_ratings = {}  # словарь средних рейтингов
 
-    for product in page_obj: # Перебираем только товары на текущей странице
+    for product in page_obj:  # Перебираем только товары на текущей странице
 
         # Благодаря определению related_name="reviews" в модели Review на ForeignKey к Product,
         # получаем все отзывы, связанные с данным продуктом. вычисляет средний рейтинг для каждого товара,
@@ -87,11 +87,11 @@ def login_view(request):
             if user is not None:
                 login(request, user)
                 return redirect('individual_data')  # Перенаправляем на Личную страницу
-            else:
-                # Обработка ошибки аутентификации
-                logger.warning(f"Authentication failed for username: {username}")
-                return render(request, 'shop/login.html',
-                              {'form': form, 'error': 'Неверное имя пользователя или пароль'})
+        else:
+            # Обработка ошибок формы
+            for field, errors in form.errors.items():
+                for error in errors:
+                    messages.error(request, f"{error}")
     else:
         form = AuthenticationForm()
     return render(request, 'shop/login.html', {'form': form})
@@ -141,8 +141,6 @@ def update_cart(request, product_id):
             cart[str(product_id)] = quantity
             request.session['cart'] = cart
             messages.success(request, "Количество товара обновлено")
-        else:
-            messages.error(request, "Количество товара должно быть больше нуля.")
     return redirect('cart')
 
 
@@ -311,5 +309,5 @@ def add_review(request, product_id):
     else:
         form = ReviewForm()
     return render(request, 'shop/review_form.html', {
-                                                        'form': form,
-                                                        'product': product})
+        'form': form,
+        'product': product})
