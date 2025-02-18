@@ -29,13 +29,20 @@
         {% include 'shop/repeated_fragments/messages.html' %}
 
         <div class="row">
-            <div class="col-md-8">
+            <div class="col-12">
+
+
                 {% block content %}
+
                 {% endblock %}
+
+
             </div>
-            {% if request.user.username != 'admin' %}
+
+
+           <!-- {% if request.user.username != 'admin' %}
                 <div class="col-md-4 d-flex justify-content-end">
-                    <!-- Боковая панель -->
+                     Боковая панель
                     <div class="card mb-8 sidebar-card">
                         <div class="card-header sidebar-card-header">
                             Ссылки
@@ -48,7 +55,9 @@
                         </div>
                     </div>
                 </div>
-            {% endif %}
+            {% endif %} -->
+
+
         </div>
     </main>
 
