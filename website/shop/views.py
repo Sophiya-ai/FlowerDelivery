@@ -351,10 +351,31 @@ def adminpage_view(request):
 
 def update_order_status(request, order_id):
     order = get_object_or_404(Order, id=order_id)
+    old_status = order.status
+
     if request.method == 'POST':
         new_status = request.POST.get('status')
         order.status = new_status
         order.save()
+
+        # Получаем Telegram ID пользователя, если он есть
+        try:
+            user = order.user
+            bot_user = user.telegram_user
+            if bot_user:
+                telegram_id = bot_user.telegram_id
+        except Exception as e:
+            telegram_id = None
+            logger.error(f"Ошибка при получении telegram_id: {e}")
+
+        logger.info(f"Attempting to send message to telegram_id: {telegram_id}")
+
+        if telegram_id:
+            message = f"Статус вашего заказа №{order.id} изменен!\n\n"
+            message += f"Старый статус: {old_status}\n"
+            message += f"Новый статус: {order.get_status_display()}\n"
+            send_telegram_message(telegram_id, message)
+
         return redirect('adminpage')  # обратно на страницу с историей заказов
     return redirect('adminpage')
 
