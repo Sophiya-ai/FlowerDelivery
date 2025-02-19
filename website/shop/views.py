@@ -16,6 +16,7 @@ from django.db.models import Avg
 
 from .models import UserProfile, Category, Product, Order, OrderItem, Review, BotUser, BotOrder
 from .forms import UserFormInOrderHistory, UserProfileCreationForm, ReviewForm, AdminForm
+from .utils import send_telegram_message
 
 User = get_user_model()
 logger = logging.getLogger(__name__)
@@ -214,6 +215,31 @@ def process_order(request):
 
         if not start_time <= now <= end_time:
             messages.info(request, "Ваш заказ принят, но будет обработан в рабочее время (с 8:00 до 18:00).")
+
+        # Получаем Telegram ID пользователя, если он есть
+        try:
+            user_profile = request.user  # Получаем пользователя
+            bot_user = user_profile.telegram_user  # Получаем связанный BotUser через поле telegram_user
+            if bot_user:
+                telegram_id = bot_user.telegram_id
+            else:
+                telegram_id = None  # Если telegram_user не существует
+        except Exception as e:
+            telegram_id = None
+            logger.error(f"Ошибка при получении telegram_id: {e}")
+        logger.info(f"Attempting to send message to telegram_id: {telegram_id}")
+        if telegram_id:
+            message = f"Ваш заказ №{order.id} успешно размещен!\n"
+            message += f"Дата заказа: {order.order_date}\n"
+            message += f"Адрес доставки: {order.delivery_address}\n"
+            message += f"Общая сумма: {order.total_price}\n"
+            for item in order.items.all():
+                message += f"- {item.product.name} ({item.quantity} шт.)\n"
+            if not start_time <= now <= end_time:
+                message += (
+                    "Ваш заказ принят, но будет обработан в рабочее время (с 8:00 до 18:00). О смене статуса "
+                    "будет сообщено.\n")
+            send_telegram_message(telegram_id, message)  # Отправляем боту
 
         return redirect('order_success', order_id=order.id)
     else:

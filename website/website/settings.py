@@ -143,3 +143,17 @@ AUTH_USER_MODEL = 'shop.UserProfile'
 TELEGRAM_BOT_USERNAME = "OderFlower_bot"
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# пропишем абсолютный путь к проекту. При перемещении в другую папку, надо изменить
+try:
+    import sys
+
+    sys.path.append('C:/Users/Sofi/Documents/GitHub/FlowerDelivery/bot')  # Не рекомендуется, но возможно
+    from config import BOT_TOKEN
+
+    TELEGRAM_BOT_TOKEN = BOT_TOKEN
+except ImportError as e:
+    print(f"ImportError: {e}")
+    TELEGRAM_BOT_TOKEN = None
+
+print(sys.path)
