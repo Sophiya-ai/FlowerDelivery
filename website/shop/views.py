@@ -13,6 +13,7 @@ from django.contrib.auth import get_user_model  # Импортирована ф�
 # которая позволяет получить текущую модель пользователя,
 # указанную в AUTH_USER_MODEL
 from django.db.models import Avg
+from django.urls import reverse
 
 from .models import UserProfile, Category, Product, Order, OrderItem, Review, BotUser, BotOrder
 from .forms import UserFormInOrderHistory, UserProfileCreationForm, ReviewForm, AdminForm
@@ -135,7 +136,16 @@ def add_to_cart(request, product_id):
         cart[product_id] = quantity
     request.session['cart'] = cart
     messages.success(request, f'Товар {product.name} добавлен в корзину!')
-    return redirect('home')
+
+    # остаемся на той странице, с которой заказывали
+    referer = request.META.get('HTTP_REFERER', '')
+    if 'home' in referer:
+        return redirect('home')
+    elif 'catalog' in referer:
+        return redirect('catalog')
+    else:
+        # Если реферер не определён, можно выбрать действие по умолчанию
+        return redirect('home')  # или 'catalog', в зависимости от ваших требований
 
 
 def update_cart(request, product_id):
@@ -214,7 +224,6 @@ def process_order(request):
                 image_url = request.build_absolute_uri(product.image.url)  # Получаем абсолютный URL
                 logger.info(f"Generated image URL: {image_url}")  # Проверяем URL
                 image_urls.append(image_url)
-
 
         order.total_price = total_price
         order.save()
