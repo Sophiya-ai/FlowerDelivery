@@ -91,7 +91,7 @@ def login_view(request):
                     return redirect('individual_data')  # иначе перенаправляем на Личную страницу
             else:
                 # Обработка ошибок формы
-                messages.error(request, "Неверное имя пользователя или пароль.") # Добавлено сообщение об ошибке
+                messages.error(request, "Неверное имя пользователя или пароль.")  # Добавлено сообщение об ошибке
         else:
             # Обработка ошибок формы
             for field, errors in form.errors.items():
@@ -189,6 +189,10 @@ def process_order(request):
             notes=f'Телефон: {phone_number}, Дата доставки: {order_date}, Время доставки: {delivery_time}'
         )
 
+        # Списки для хранения информации о позициях заказа и URL изображений
+        order_items = []
+        image_urls = []  # Список URL изображений
+
         for product_id, quantity in cart.items():
             product = Product.objects.get(pk=product_id)
             price = product.price
@@ -201,6 +205,15 @@ def process_order(request):
                 quantity=quantity,
                 price=price
             )
+
+            # Создаем описание позиции заказа
+            order_items.append(f"- {product.name} ({quantity} шт.) - {product.price} руб.")
+
+            # Добавляем URL изображения в список, если оно есть
+            if product.image:
+                image_url = request.build_absolute_uri(product.image.url)  # Получаем абсолютный URL
+                logger.info(f"Generated image URL: {image_url}")  # Проверяем URL
+                image_urls.append(image_url)
 
         order.total_price = total_price
         order.save()
@@ -227,19 +240,27 @@ def process_order(request):
         except Exception as e:
             telegram_id = None
             logger.error(f"Ошибка при получении telegram_id: {e}")
+
         logger.info(f"Attempting to send message to telegram_id: {telegram_id}")
+
         if telegram_id:
-            message = f"Ваш заказ №{order.id} успешно размещен!\n"
-            message += f"Дата заказа: {order.order_date}\n"
+            message = f"Ваш заказ №{order.id} успешно размещен!\n\n"
+            message += f"Информация о доставке:\n {order.notes}\n\n"
             message += f"Адрес доставки: {order.delivery_address}\n"
             message += f"Общая сумма: {order.total_price}\n"
-            for item in order.items.all():
-                message += f"- {item.product.name} ({item.quantity} шт.)\n"
+            message += "\nСостав заказа:\n"
+            message += "\n".join(order_items)  # Добавляем информацию о каждой позиции заказа
+            message += "\n\nВот изображения(ие) позиций(ии) вашего заказа соответственно:"
+            send_telegram_message(telegram_id, message)
+
+            for url in image_urls:
+                send_telegram_message(telegram_id, url)
+
             if not start_time <= now <= end_time:
-                message += (
-                    "Ваш заказ принят, но будет обработан в рабочее время (с 8:00 до 18:00). О смене статуса "
+                message = (
+                    "\nВаш заказ принят, но будет обработан в рабочее время (с 8:00 до 18:00). О смене статуса "
                     "будет сообщено.\n")
-            send_telegram_message(telegram_id, message)  # Отправляем боту
+                send_telegram_message(telegram_id, message)
 
         return redirect('order_success', order_id=order.id)
     else:
