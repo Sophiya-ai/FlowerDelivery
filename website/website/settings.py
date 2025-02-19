@@ -126,6 +126,9 @@ STATICFILES_DIRS = [
     # 'var/www/static/', это нужно для подгрузки на сервер
 ]
 
+# Настройте WhiteNoise для обслуживания медиафайлов
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
 # Папка, в которую Django будет собирать все статические файлы при выполнении команды collectstatic
 # STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
@@ -138,6 +141,7 @@ MEDIA_URL = '/media/'
 
 # Папка, в которой будут храниться медиафайлы
 MEDIA_ROOT = BASE_DIR / 'media'
+print(MEDIA_ROOT)
 
 AUTH_USER_MODEL = 'shop.UserProfile'
 
