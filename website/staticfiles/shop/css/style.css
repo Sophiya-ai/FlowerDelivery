@@ -1,0 +1,345 @@
+@import url('https://fonts.googleapis.com/css2?family=Pacifico&display=swap')
+
+/* Общие стили */
+body {
+    font-family: 'Arial', sans-serif;
+    transition: background-color 0.3s, color 0.3s;
+    display: flex; /* Make body a flex container */
+    flex-direction: column; /* Stack children vertically */
+    min-height: 100vh; /* Ensure it covers the entire viewport height */
+}
+
+main {
+    width: 100%;
+    padding: 0;
+    margin: 0;
+    flex: 1; /* Allow main to grow and take up remaining space */
+}
+
+
+/* Hero Section */
+.hero {
+    background: url("../img/flowers.jpg") no-repeat center center;
+    background-size: cover;
+    color: #fff;
+    padding: 120px 0;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    height: 250px
+}
+
+.hero::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(255, 255, 255, 0.1); /* Slight overlay */
+    z-index: 1;
+}
+
+.hero .container {
+    position: relative;
+    z-index: 2;
+}
+
+.hero h1 {
+    font-size: 2rem;
+    margin-bottom: 20px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.hero p {
+    font-size: 1.8rem;
+    font-weight: 500;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+/* Navbar */
+.navbar {
+    padding: 1rem 0;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    transition: background-color 0.3s;
+}
+
+.navbar-brand {
+    font-size: 1,5rem;
+    font-weight: 600;
+    color: #e91e63 !important; /* Fuchsia for brand */
+}
+
+.navbar-nav .nav-link {
+    color: #777 !important;
+    padding: 0.5rem 1rem;
+    transition: color 0.3s;
+}
+
+.navbar-nav .nav-link:hover {
+    color: #e91e63 !important; /* Fuchsia on hover */
+}
+
+.navbar-toggler {
+    border-color: #e91e63 !important;
+}
+
+/* для корзины */
+.badge-primary {
+    background-color: #007bff; /* Цвет значка */
+    color: white; /* Цвет текста */
+    margin-left: 5px; /* Отступ слева от значка */
+}
+
+/* Product Card */
+.card-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+.card {
+    flex: 1 1 30%; /* Карточки будут занимать около 30% ширины каждой в ряду */
+    max-width: 400px; /* Ограничение максимальной ширины */
+    margin: 5px; /* Отступ между карточками */
+    margin-top: 5px;
+    border: none;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.08);
+    transition: transform 0.2s ease-in-out;
+    display: flex;
+    flex-direction: column;
+}
+
+.card:hover {
+    transform: scale(1.03);
+}
+
+.card-img-top {
+    border-radius: 0.25rem;
+    height: 350px;
+    object-fit: cover;
+}
+
+.star-rating {
+    font-size: 1.2em;
+    color: #ffc107; /* Цвет звездочек (золотой) */
+}
+
+.star-rating .filled {
+    opacity: 1; /* Полностью закрашенная звезда */
+}
+
+.star-rating .empty {
+    opacity: 0.2; /* Полупрозрачная звезда */
+}
+
+.card-body {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+}
+
+.card-title {
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: #333;
+}
+
+.card-text {
+    font-size: 1rem;
+    color: #555;
+}
+
+.available {
+    color: green;
+}
+
+.not-available {
+    color: maroon;
+}
+
+.card-footer {
+    background-color: transparent;
+    border-top: none;
+    color: #777;
+    text-align: left;
+    margin-top: auto;
+}
+
+.product-price {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #333;
+    margin-top: 8px; /* Небольшой отступ от кнопки */
+}
+
+.add-to-cart-btn {
+    display: inline-block;
+    margin-top: 8px;
+    padding: 10px 20px;
+    background-color: #0275d8;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background-color 0.2s;
+}
+
+.add-to-cart-btn:hover {
+    background-color: #025aa5;
+}
+
+/* Sidebar */
+.sidebar-card {
+    border: none;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    height: 200px;
+    max-width: 70%; /* Убедитесь, что ширина карты не превышает ширину колонки */
+}
+
+@media (min-width: 768px) {
+    .sidebar-card {
+        position: sticky;
+        top: 5px; /* Это значение можно изменить в зависимости от вашего дизайна */
+    }
+}
+
+.sidebar-card-header {
+    background-color: #f8f9fa;
+    color: #333;
+    font-weight: 600;
+    padding: 1rem;
+    border-bottom: 1px solid #eee;
+}
+
+.sidebar-card-body {
+    padding: 1rem;
+    color: #555;
+}
+
+/* Стилизация кнопки подключения к Telegram */
+.btn-bordered {
+    border-width: 3px; /* Толщина ободка */
+    border-style: solid;
+    border-color: #17a2b8;
+}
+
+.btn-blinking {
+    animation: blinking 1.5s infinite;
+}
+
+@keyframes blinking {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.5;
+    }
+}
+
+/* register.html */
+.register-card {
+    border: none;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
+    border-radius: 0.5rem;
+    max-width: 100%;
+}
+
+.register-card .card-title {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: #333;
+    margin-bottom: 1.5rem;
+}
+
+.register-card .form-group {
+    margin-bottom: 1.5rem;
+}
+
+.register-card .form-label {
+    font-weight: 500;
+    color: #555;
+    margin-bottom: 0.5rem;
+}
+
+.register-card .form-control {
+    border: 1px solid #ddd;
+    border-radius: 0.3rem; /* Slightly more rounded */
+    padding: 0.75rem;
+    font-size: 1rem;
+    box-shadow: none; /* Remove default box-shadow */
+}
+
+.register-card .form-control:focus {
+    border-color: #e91e63; /* Fuchsia on focus */
+    outline: none;
+    box-shadow: 0 0 0 0.2rem rgba(233, 30, 99, 0.25); /* Subtle focus shadow */
+}
+
+.register-button {
+    background-color: #e91e63; /* Fuchsia */
+    color: #fff;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.25rem;
+    font-weight: 600;
+    transition: background-color 0.3s;
+}
+
+.register-button:hover {
+    background-color: #c2185b; /* Darker Fuchsia */
+}
+
+/* order-history */
+.order-history-scrollable {
+    max-height: 500px; /*  максимальная высота */
+    overflow-y: auto; /* Добавляем вертикальную полосу прокрутки, когда контент превышает высоту */
+    overflow-x: hidden; /* Предотвращаем появление горизонтальной полосы прокрутки */
+    padding-right: 10px; /* Небольшой отступ справа, чтобы полоса прокрутки не перекрывала контент */
+}
+
+
+
+/* Footer */
+.footer {
+    background-color: #f8f9fa;
+    color: #777;
+    padding: 1rem 0;
+    width: 100%; /* Ensure full width */
+}
+
+/* catalog */
+.category-section {
+    border-bottom: 1px solid #ddd !important; /* Разделитель между категориями */
+    padding-bottom: 20px;
+    margin-bottom: 20px;
+}
+
+.category-name {
+    font-size: 1.8rem;
+    font-weight: bold;
+    margin-bottom: 10px;
+    font-family: 'Pacifico', cursive !important;
+}
+
+.empty {
+    color: maroon;
+}
+
+.catalog-scrollable {
+    overflow-x: auto; /* Горизонтальная прокрутка */
+    white-space: nowrap; /*  Чтобы карточки отображались в строку */
+    padding-bottom: 10px; /*  Отступ, чтобы полоса прокрутки не перекрывала карточки */
+    margin-left: -5px; /* компенсация отступа для product-card */
+    margin-right: -5px; /* компенсация отступа для product-card */
+    max-width: 1120px; /* максимальная ширина */
+    margin: 0 auto;   /* Центрирование контейнера */
+}
+
+.catalog-scrollable .card-container {
+    display: inline-flex; /*  Чтобы карточки отображались в ряд */
+    gap: 20px;  /*  Отступ между карточками */
+    padding: 0 5px; /* компенсация отступа для product-card */
+}

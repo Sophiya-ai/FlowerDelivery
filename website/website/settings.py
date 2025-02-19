@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
 from pathlib import Path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -122,7 +123,8 @@ STATIC_URL = '/static/'
 
 # Для работы со статическим файлами
 STATICFILES_DIRS = [
-    BASE_DIR / "static",
+    os.path.join(BASE_DIR, 'shop', 'static'),  # Добавьте эту строку!
+    #BASE_DIR / "static",
     # 'var/www/static/', это нужно для подгрузки на сервер
 ]
 
@@ -130,7 +132,7 @@ STATICFILES_DIRS = [
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # Папка, в которую Django будет собирать все статические файлы при выполнении команды collectstatic
-# STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 
 # Media files (Uploaded files by users)
@@ -162,3 +164,7 @@ except ImportError as e:
     TELEGRAM_BOT_TOKEN = None
 
 print(sys.path)
+
+# Настройки для корректных URL
+USE_X_FORWARDED_HOST = True
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')

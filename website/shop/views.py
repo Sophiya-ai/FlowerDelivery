@@ -215,6 +215,7 @@ def process_order(request):
                 logger.info(f"Generated image URL: {image_url}")  # Проверяем URL
                 image_urls.append(image_url)
 
+
         order.total_price = total_price
         order.save()
 
