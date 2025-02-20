@@ -158,7 +158,7 @@ async def main():
                         content_type = response.headers.get('Content-Type')
 
                         if content_type and content_type.startswith('image'):
-                            await bot.send_photo(chat_id=telegram_id, photo=message)
+                            await bot.send_photo(chat_id=telegram_id, photo=url)
                             logging.info(f"Successfully sent photo to telegram_id {telegram_id}")
                         else:
                             logging.error(
@@ -171,7 +171,6 @@ async def main():
         except Exception as e:
             logging.error(f'Ошибка при отправке сообщения: {e}')
             return web.json_response({'error': str(e)}, status=500)
-
 
     # Set up aiohttp app
     app = web.Application()
