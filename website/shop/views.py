@@ -20,7 +20,7 @@ from asgiref.sync import sync_to_async
 
 from .models import Category, Product, Order, OrderItem, Review
 from .forms import UserFormInOrderHistory, UserProfileCreationForm, ReviewForm, AdminForm
-from .utils import send_telegram_message  # Импортируем функцию
+
 
 User = get_user_model()
 logger = logging.getLogger(__name__)
@@ -250,41 +250,30 @@ async def process_order(request):
         start_time = datetime.strptime('08:00', '%H:%M').time()
         end_time = datetime.strptime('18:00', '%H:%M').time()
 
-        data = {
-            'order_id': order.id,  # ID пользователя из Telegram
-            'order_notes': order.notes,
-            'new_status': order.status,
-        }
-        try:
-            # Отправка POST-запроса к вашему боту
-            response = requests.post('http://127.0.0.1:8080/notify', json=data)
-            response.raise_for_status()
-        except requests.RequestException as e:
-            # Логируем ошибки
-            logger.error(f"Ошибка при отправке уведомления о смене статуса: {e}")
+        if not start_time <= now <= end_time:
+            message = (
+                "\nВаш заказ принят, но будет обработан в рабочее время (с 8:00 до 18:00). О смене статуса "
+                "будет сообщено.\n")
+
+        if not image_urls:
+            logger.info("Список URL изображений пуст, изображения не отправляются.")
 
         if telegram_id:
-            message = f"Ваш заказ №{order.id} успешно размещен!\n\n"
-            message += f"Информация о доставке:\n {order.notes}\n\n"
-            message += f"Адрес доставки: {order.delivery_address}\n"
-            message += f"Общая сумма: {order.total_price}\n"
-            message += "\nСостав заказа:\n"
-            message += "\n".join(order_items)  # Добавляем информацию о каждой позиции заказа
-            if not start_time <= now <= end_time:
-                message += (
-                    "\nВаш заказ принят, но будет обработан в рабочее время (с 8:00 до 18:00). О смене статуса "
-                    "будет сообщено.\n")
-            message += "\n\nВизуализация содержимого вашего заказа:"
 
-            send_telegram_message.delay(telegram_id, message)  # Вызываем функцию напрямую
+            data = {
+                'order_id': order.id,  # ID пользователя из Telegram
+                'order_notes': order.notes,
+                'address': order.delivery_address,
+                'order_notes': order.total_price,
+                'order_items': order_items,
+                'image_urls': image_urls,
+                'message_about_time': message,
+            }
+            try:
+                # Отправка POST-запроса к вашему боту
+                response = requests.post('http://127.0.0.1:8080/notify', json=data)
+                response.raise_for_status()  
 
-            # Отправляем каждое изображение отдельно
-            if image_urls:
-                for image_url in image_urls:
-                    logger.info(f"Отправка изображения: {image_url}")
-                    send_telegram_message.delay(telegram_id, image_url)  # Отправляем каждое изображение отдельно
-            else:
-                logger.info("Список URL изображений пуст, изображения не отправляются.")
         else:
             logger.warning(
                 f"Telegram ID не найден для пользователя {request.user.username}. Уведомление не отправлено.")
@@ -391,7 +380,6 @@ def update_order_status(request, order_id):
             logger.error(f"Ошибка при получении telegram_id: {e}")
 
         logger.info(f"Attempting to send message to telegram_id: {telegram_id}")
-
 
         data = {
             'telegram_id': telegram_id,  # ID пользователя из Telegram
