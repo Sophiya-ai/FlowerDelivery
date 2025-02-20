@@ -1,23 +1,26 @@
 import logging
 from datetime import date, datetime
+from aiogram import types
 
 from django.contrib import messages
 from django.shortcuts import render, redirect, get_object_or_404
-from django.utils.crypto import get_random_string
+from django.contrib.auth.decorators import permission_required
+from django.urls import reverse
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.forms import AuthenticationForm
 from django.core.paginator import Paginator
 from django.contrib.auth.decorators import login_required
 from django.conf import settings
 from django.contrib.auth import get_user_model  # Импортирована функция get_user_model из django.contrib.auth,
-# которая позволяет получить текущую модель пользователя,
-# указанную в AUTH_USER_MODEL
+                                                # которая позволяет получить текущую модель пользователя,
+                                                # указанную в AUTH_USER_MODEL
 from django.db.models import Avg
 from django.urls import reverse
+from asgiref.sync import sync_to_async
 
-from .models import UserProfile, Category, Product, Order, OrderItem, Review, BotUser, BotOrder
+from .models import Category, Product, Order, OrderItem, Review
 from .forms import UserFormInOrderHistory, UserProfileCreationForm, ReviewForm, AdminForm
-from .utils import send_telegram_message
+from .utils import send_telegram_message  # Импортируем функции
 
 User = get_user_model()
 logger = logging.getLogger(__name__)
@@ -171,7 +174,7 @@ def remove_from_cart(request, product_id):
 
 
 @login_required
-def process_order(request):
+async def process_order(request):
     if request.method == 'POST':
         cart = request.session.get('cart', {})
         if not cart:
@@ -190,8 +193,19 @@ def process_order(request):
             messages.error(request, "Неверный формат даты или времени.")
             return redirect('cart')
 
+        # Получаем Telegram ID пользователя, если он есть
+        try:
+            user_profile = request.user  # Получаем пользователя
+            bot_user = await sync_to_async(
+                lambda: user_profile.telegram_user)()  # Получаем связанный BotUser через поле telegram_user
+            telegram_id = bot_user.telegram_id if bot_user else None
+        except Exception as e:
+            telegram_id = None
+            logger.error(f"Ошибка при получении telegram_id: {e}")
+        logger.info(f"Attempting to send message to telegram_id: {telegram_id}")
+
         total_price = 0
-        order = Order.objects.create(
+        order = await sync_to_async(Order.objects.create)(
             user=request.user,
             delivery_address=delivery_address,
             order_date=order_date,
@@ -199,59 +213,42 @@ def process_order(request):
             notes=f'Телефон: {phone_number}, Дата доставки: {order_date}, Время доставки: {delivery_time}'
         )
 
-        # Списки для хранения информации о позициях заказа и URL изображений
         order_items = []
         image_urls = []  # Список URL изображений
 
         for product_id, quantity in cart.items():
-            product = Product.objects.get(pk=product_id)
+            try:
+                product = await sync_to_async(Product.objects.get)(pk=product_id)
+            except Product.DoesNotExist:
+                logger.error(f"Product with id {product_id} not found.")
+                messages.error(request, f"Товар с id {product_id} не найден.")  # Сообщаем об ошибке
+                continue  # Переходим к следующему товару
+
             price = product.price
             total_for_product = price * quantity
             total_price += total_for_product
 
-            OrderItem.objects.create(
+            await sync_to_async(OrderItem.objects.create)(
                 order=order,
                 product=product,
                 quantity=quantity,
                 price=price
             )
-
-            # Создаем описание позиции заказа
             order_items.append(f"- {product.name} ({quantity} шт.) - {product.price} руб.")
 
-            # Добавляем URL изображения в список, если оно есть
             if product.image:
-                image_url = request.build_absolute_uri(product.image.url)  # Получаем абсолютный URL
-                logger.info(f"Generated image URL: {image_url}")  # Проверяем URL
+                image_url = request.build_absolute_uri(product.image.url)
+                logger.info(f"Generated image URL: {image_url}")
                 image_urls.append(image_url)
 
         order.total_price = total_price
-        order.save()
+        await sync_to_async(order.save)()
 
-        # Очищаем корзину
         del request.session['cart']
 
-        # Проверка времени заказа
         now = datetime.now().time()
         start_time = datetime.strptime('08:00', '%H:%M').time()
         end_time = datetime.strptime('18:00', '%H:%M').time()
-
-        if not start_time <= now <= end_time:
-            messages.info(request, "Ваш заказ принят, но будет обработан в рабочее время (с 8:00 до 18:00).")
-
-        # Получаем Telegram ID пользователя, если он есть
-        try:
-            user_profile = request.user  # Получаем пользователя
-            bot_user = user_profile.telegram_user  # Получаем связанный BotUser через поле telegram_user
-            if bot_user:
-                telegram_id = bot_user.telegram_id
-            else:
-                telegram_id = None  # Если telegram_user не существует
-        except Exception as e:
-            telegram_id = None
-            logger.error(f"Ошибка при получении telegram_id: {e}")
-
-        logger.info(f"Attempting to send message to telegram_id: {telegram_id}")
 
         if telegram_id:
             message = f"Ваш заказ №{order.id} успешно размещен!\n\n"
@@ -260,21 +257,28 @@ def process_order(request):
             message += f"Общая сумма: {order.total_price}\n"
             message += "\nСостав заказа:\n"
             message += "\n".join(order_items)  # Добавляем информацию о каждой позиции заказа
-            message += "\n\nВот изображения(ие) позиций(ии) вашего заказа соответственно:"
-            send_telegram_message(telegram_id, message)
-
-            for url in image_urls:
-                send_telegram_message(telegram_id, url)
-
             if not start_time <= now <= end_time:
-                message = (
+                message += (
                     "\nВаш заказ принят, но будет обработан в рабочее время (с 8:00 до 18:00). О смене статуса "
                     "будет сообщено.\n")
-                send_telegram_message(telegram_id, message)
+            message += "\n\nВизуализация содержимого вашего заказа:"
 
-        return redirect('order_success', order_id=order.id)
+            await send_telegram_message(telegram_id, message)  # Вызываем функцию напрямую
+
+            # Отправляем каждое изображение отдельно
+            if image_urls:
+                for image_url in image_urls:
+                    logger.info(f"Отправка изображения: {image_url}")
+                    await send_telegram_message(telegram_id, image_url)  # Отправляем каждое изображение отдельно
+            else:
+                logger.info("Список URL изображений пуст, изображения не отправляются.")
+        else:
+            logger.warning(
+                f"Telegram ID не найден для пользователя {request.user.username}. Уведомление не отправлено.")
+
+        return redirect('order_success', order_id=order.id)  # Редирект на страницу успеха
     else:
-        return redirect('cart')
+        return redirect('cart')  # Обработка GET запроса
 
 
 def order_success(request, order_id):
@@ -349,21 +353,52 @@ def adminpage_view(request):
                    'order_history': order_history_data})
 
 
-def update_order_status(request, order_id):
-    order = get_object_or_404(Order, id=order_id)
+# def update_order_status(request, order_id):
+#     order = get_object_or_404(Order, id=order_id)
+#     old_status = order.status
+#
+#     if request.method == 'POST':
+#         new_status = request.POST.get('status')
+#         order.status = new_status
+#         order.save()
+#
+#         # Получаем Telegram ID пользователя, если он есть
+#         try:
+#             user = order.user
+#             bot_user = user.telegram_user
+#             if bot_user:
+#                 telegram_id = bot_user.telegram_id
+#         except Exception as e:
+#             telegram_id = None
+#             logger.error(f"Ошибка при получении telegram_id: {e}")
+#
+#         logger.info(f"Attempting to send message to telegram_id: {telegram_id}")
+#
+#         if telegram_id:
+#             message = f"Статус вашего заказа №{order.id} изменен!\n\n"
+#             message += f"Старый статус: {old_status}\n"
+#             message += f"Новый статус: {order.get_status_display()}\n"
+#             send_telegram_message(telegram_id, message)
+#
+#         return redirect('adminpage')  # обратно на страницу с историей заказов
+#     return redirect('adminpage')
+
+
+@permission_required('shop.change_order')
+async def update_order_status(request, order_id):
+    order = await sync_to_async(get_object_or_404)(Order, id=order_id)
     old_status = order.status
 
     if request.method == 'POST':
         new_status = request.POST.get('status')
         order.status = new_status
-        order.save()
+        await sync_to_async(order.save)()
 
         # Получаем Telegram ID пользователя, если он есть
         try:
             user = order.user
-            bot_user = user.telegram_user
-            if bot_user:
-                telegram_id = bot_user.telegram_id
+            bot_user = await sync_to_async(lambda: user.telegram_user)()
+            telegram_id = bot_user.telegram_id if bot_user else None
         except Exception as e:
             telegram_id = None
             logger.error(f"Ошибка при получении telegram_id: {e}")
@@ -371,12 +406,19 @@ def update_order_status(request, order_id):
         logger.info(f"Attempting to send message to telegram_id: {telegram_id}")
 
         if telegram_id:
-            message = f"Статус вашего заказа №{order.id} изменен!\n\n"
-            message += f"Старый статус: {old_status}\n"
-            message += f"Новый статус: {order.get_status_display()}\n"
-            send_telegram_message(telegram_id, message)
+            message = (
+                f"Статус вашего заказа №{order.id} изменен!\n\n"
+                f"Старый статус: {old_status}\n"
+                f"Новый статус: {order.get_status_display()}\n"
+            )
+            await send_telegram_message(telegram_id, message)  # Вызываем функцию напрямую
+        else:
+            logger.warning(f"Telegram ID не найден для пользователя {order.user.username}.  Уведомление не отправлено.")
 
-        return redirect('adminpage')  # обратно на страницу с историей заказов
+        logger.info(
+            f"Пользователь {request.user.username} изменил статус заказа {order.id} с {old_status} на {new_status}")  # Логируем изменение статуса
+
+        return redirect('adminpage')  # Используем reverse для формирования URL
     return redirect('adminpage')
 
 
