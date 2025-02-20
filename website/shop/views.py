@@ -418,8 +418,8 @@ async def update_order_status(request, order_id):
         logger.info(
             f"Пользователь {request.user.username} изменил статус заказа {order.id} с {old_status} на {new_status}")  # Логируем изменение статуса
 
-        return redirect('adminpage')  # Используем reverse для формирования URL
-    return redirect('adminpage')
+        return redirect(reverse('update_order_status', kwargs={'order_id': order_id}))  # Используем reverse для формирования URL
+    return redirect(reverse('update_order_status', kwargs={'order_id': order_id}))
 
 
 def add_to_cart_once_more(request, order_id):
