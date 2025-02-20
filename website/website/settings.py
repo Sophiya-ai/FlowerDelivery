@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 
 from pathlib import Path
 import os
+import sys
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -153,8 +154,6 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # пропишем абсолютный путь к проекту. При перемещении в другую папку, надо изменить
 try:
-    import sys
-
     sys.path.append('C:/Users/Sofi/Documents/GitHub/FlowerDelivery/bot')  # Не рекомендуется, но возможно
     from config import BOT_TOKEN
 
@@ -163,7 +162,16 @@ except ImportError as e:
     print(f"ImportError: {e}")
     TELEGRAM_BOT_TOKEN = None
 
+# sys.path.insert(0, os.path.join(BASE_DIR, 'bot'))
+#
+# try:
+#     from website.bot import config  # website - имя пакета
+#     TELEGRAM_BOT_TOKEN = config.BOT_TOKEN
+# except ImportError as e:
+#     print(f"ImportError: {e}")
+#     TELEGRAM_BOT_TOKEN = None
 print(sys.path)
+
 
 # Настройки для корректных URL
 USE_X_FORWARDED_HOST = True
