@@ -1,4 +1,4 @@
-from aiogram import Bot, types
+from aiogram import Bot
 from aiogram.exceptions import TelegramForbiddenError, TelegramBadRequest
 import logging
 import aiohttp

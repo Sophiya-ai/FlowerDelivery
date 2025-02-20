@@ -1,11 +1,11 @@
 import logging
 from datetime import date, datetime
 from aiogram import types
+import asyncio
 
 from django.contrib import messages
 from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth.decorators import permission_required
-from django.urls import reverse
+from django.db.models import Prefetch
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.forms import AuthenticationForm
 from django.core.paginator import Paginator
@@ -15,7 +15,6 @@ from django.contrib.auth import get_user_model  # Импортирована ф�
                                                 # которая позволяет получить текущую модель пользователя,
                                                 # указанную в AUTH_USER_MODEL
 from django.db.models import Avg
-from django.urls import reverse
 from asgiref.sync import sync_to_async
 
 from .models import Category, Product, Order, OrderItem, Review
@@ -353,40 +352,13 @@ def adminpage_view(request):
                    'order_history': order_history_data})
 
 
-# def update_order_status(request, order_id):
-#     order = get_object_or_404(Order, id=order_id)
-#     old_status = order.status
-#
-#     if request.method == 'POST':
-#         new_status = request.POST.get('status')
-#         order.status = new_status
-#         order.save()
-#
-#         # Получаем Telegram ID пользователя, если он есть
-#         try:
-#             user = order.user
-#             bot_user = user.telegram_user
-#             if bot_user:
-#                 telegram_id = bot_user.telegram_id
-#         except Exception as e:
-#             telegram_id = None
-#             logger.error(f"Ошибка при получении telegram_id: {e}")
-#
-#         logger.info(f"Attempting to send message to telegram_id: {telegram_id}")
-#
-#         if telegram_id:
-#             message = f"Статус вашего заказа №{order.id} изменен!\n\n"
-#             message += f"Старый статус: {old_status}\n"
-#             message += f"Новый статус: {order.get_status_display()}\n"
-#             send_telegram_message(telegram_id, message)
-#
-#         return redirect('adminpage')  # обратно на страницу с историей заказов
-#     return redirect('adminpage')
-
-
-@permission_required('shop.change_order')
+@login_required
 async def update_order_status(request, order_id):
-    order = await sync_to_async(get_object_or_404)(Order, id=order_id)
+    # Используем prefetch_related для асинхронной загрузки bot_user
+    order = await sync_to_async(get_object_or_404)(
+        Order.objects.prefetch_related('user__telegram_user'),  # Асинхронно загружаем bot_user
+        id=order_id
+    )
     old_status = order.status
 
     if request.method == 'POST':
@@ -395,31 +367,25 @@ async def update_order_status(request, order_id):
         await sync_to_async(order.save)()
 
         # Получаем Telegram ID пользователя, если он есть
+        telegram_id = None  # Инициализируем telegram_id
         try:
-            user = order.user
-            bot_user = await sync_to_async(lambda: user.telegram_user)()
+            user_profile = order.user  # Получаем пользователя
+            bot_user = user_profile.telegram_user  # Получаем связанный BotUser
+
             telegram_id = bot_user.telegram_id if bot_user else None
         except Exception as e:
-            telegram_id = None
             logger.error(f"Ошибка при получении telegram_id: {e}")
 
         logger.info(f"Attempting to send message to telegram_id: {telegram_id}")
 
         if telegram_id:
-            message = (
-                f"Статус вашего заказа №{order.id} изменен!\n\n"
-                f"Старый статус: {old_status}\n"
-                f"Новый статус: {order.get_status_display()}\n"
-            )
-            await send_telegram_message(telegram_id, message)  # Вызываем функцию напрямую
-        else:
-            logger.warning(f"Telegram ID не найден для пользователя {order.user.username}.  Уведомление не отправлено.")
+            message = f"Статус вашего заказа №{order.id} изменен!\n\n"
+            message += f"Старый статус: {old_status}\n"
+            message += f"Новый статус: {order.get_status_display()}\n"
+            await send_telegram_message(telegram_id, message)
 
-        logger.info(
-            f"Пользователь {request.user.username} изменил статус заказа {order.id} с {old_status} на {new_status}")  # Логируем изменение статуса
-
-        return redirect(reverse('update_order_status', kwargs={'order_id': order_id}))  # Используем reverse для формирования URL
-    return redirect(reverse('update_order_status', kwargs={'order_id': order_id}))
+        return redirect('adminpage')  # обратно на страницу с историей заказов
+    return redirect('adminpage')
 
 
 def add_to_cart_once_more(request, order_id):
