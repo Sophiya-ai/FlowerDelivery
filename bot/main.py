@@ -1,14 +1,15 @@
 import asyncio
 import logging
-import requests
+import io
 import sqlite3  # Импортируем sqlite3
+import aiohttp
 from aiohttp import web
 from aiogram.client.session.aiohttp import AiohttpSession
 
 from aiogram.filters import Command
 from aiogram import Bot, Dispatcher
+from aiogram.types import InputFile
 from aiogram.types import Message
-from aiogram.webhook.aiohttp_server import SimpleRequestHandler, setup_application
 
 from config import BOT_TOKEN
 
@@ -150,23 +151,19 @@ async def main():
             message += "\nВизуализация содержимого вашего заказа:"
 
             await bot.send_message(chat_id=telegram_id, text=message)
-            for url in image_urls:
-                if url.startswith("http://") or url.startswith("https://"):
+            async with aiohttp.ClientSession() as session:
+                for url in image_urls:
                     try:
-                        response = requests.get(url, stream=True)
-                        response.raise_for_status()
-                        content_type = response.headers.get('Content-Type')
-
-                        if content_type and content_type.startswith('image'):
-                            await bot.send_photo(chat_id=telegram_id, photo=url)
-                            logging.info(f"Successfully sent photo to telegram_id {telegram_id}")
-                        else:
-                            logging.error(
-                                f"URL is not an image or Content-Type is not image. Content-Type: {content_type}, URL: {message}")
-                    except requests.exceptions.RequestException as e:
-                        logging.error(f"Request error: {e}")
+                        async with session.get(url) as response:
+                            if response.status == 200:
+                                image_data = await response.read()
+                                photo = InputFile(io.BytesIO(image_data), filename='image.jpg')
+                                await bot.send_photo(chat_id=telegram_id, photo=photo)
+                            else:
+                                logging.error(f"Failed to fetch image from URL: {url} with status {response.status}")
                     except Exception as e:
-                        logging.error(f"Error sending photo: {e}")
+                        logging.error(f"Error sending photo {url}: {e}")
+
             return web.json_response({'status': 'success'})
         except Exception as e:
             logging.error(f'Ошибка при отправке сообщения: {e}')
