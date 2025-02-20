@@ -92,11 +92,10 @@ class AdminForm(ModelForm):
                               forms.Textarea(attrs={'rows': 2, 'cols': 10, 'class': 'form-control'}),
                               # размер текстового поля в attrs
                               required=False, label="Адрес")
-    password = forms.CharField(widget=forms.PasswordInput, required=False, label="Новый пароль")
 
     class Meta:
         model = UserProfile
-        fields = ['password', 'first_name', 'last_name', 'phone_number', 'address', 'type_of_user', 'telegram_user']
+        fields = ['first_name', 'last_name', 'phone_number', 'address', 'type_of_user', 'telegram_user']
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -109,9 +108,7 @@ class AdminForm(ModelForm):
         user = super().save(commit=False)   # Сначала сохраняем UserProfile
         user.first_name = self.cleaned_data['first_name'] # Обновляем имя
         user.last_name = self.cleaned_data['last_name']   # Обновляем фамилию
-        password = self.cleaned_data.get('password')
-        if password:
-            user.password = make_password(password)  # Закодировать пароль
+
         if commit:
             user.save()        # Сохраняем UserProfile с обновленными именем и фамилией
         return user

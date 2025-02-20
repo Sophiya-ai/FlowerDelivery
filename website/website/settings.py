@@ -176,3 +176,11 @@ print(sys.path)
 # Настройки для корректных URL
 USE_X_FORWARDED_HOST = True
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
+# настройки celery
+CELERY_BROKER_URL = 'redis://localhost:6379/0'  # URL вашего Redis брокера
+CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'  # URL вашего Redis бэкенда для хранения результатов
+CELERY_ACCEPT_CONTENT = ['application/json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TIMEZONE = 'Europe/Kaliningrad'

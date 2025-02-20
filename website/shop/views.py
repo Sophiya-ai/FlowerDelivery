@@ -2,6 +2,7 @@ import logging
 from datetime import date, datetime
 from aiogram import types
 import asyncio
+import requests
 
 from django.contrib import messages
 from django.shortcuts import render, redirect, get_object_or_404
@@ -19,7 +20,7 @@ from asgiref.sync import sync_to_async
 
 from .models import Category, Product, Order, OrderItem, Review
 from .forms import UserFormInOrderHistory, UserProfileCreationForm, ReviewForm, AdminForm
-from .utils import send_telegram_message  # Импортируем функции
+from .utils import send_telegram_message  # Импортируем функцию
 
 User = get_user_model()
 logger = logging.getLogger(__name__)
@@ -249,6 +250,19 @@ async def process_order(request):
         start_time = datetime.strptime('08:00', '%H:%M').time()
         end_time = datetime.strptime('18:00', '%H:%M').time()
 
+        data = {
+            'order_id': order.id,  # ID пользователя из Telegram
+            'order_notes': order.notes,
+            'new_status': order.status,
+        }
+        try:
+            # Отправка POST-запроса к вашему боту
+            response = requests.post('http://127.0.0.1:8080/notify', json=data)
+            response.raise_for_status()
+        except requests.RequestException as e:
+            # Логируем ошибки
+            logger.error(f"Ошибка при отправке уведомления о смене статуса: {e}")
+
         if telegram_id:
             message = f"Ваш заказ №{order.id} успешно размещен!\n\n"
             message += f"Информация о доставке:\n {order.notes}\n\n"
@@ -262,13 +276,13 @@ async def process_order(request):
                     "будет сообщено.\n")
             message += "\n\nВизуализация содержимого вашего заказа:"
 
-            await send_telegram_message(telegram_id, message)  # Вызываем функцию напрямую
+            send_telegram_message.delay(telegram_id, message)  # Вызываем функцию напрямую
 
             # Отправляем каждое изображение отдельно
             if image_urls:
                 for image_url in image_urls:
                     logger.info(f"Отправка изображения: {image_url}")
-                    await send_telegram_message(telegram_id, image_url)  # Отправляем каждое изображение отдельно
+                    send_telegram_message.delay(telegram_id, image_url)  # Отправляем каждое изображение отдельно
             else:
                 logger.info("Список URL изображений пуст, изображения не отправляются.")
         else:
@@ -352,19 +366,19 @@ def adminpage_view(request):
                    'order_history': order_history_data})
 
 
+
 @login_required
-async def update_order_status(request, order_id):
+def update_order_status(request, order_id):
     # Используем prefetch_related для асинхронной загрузки bot_user
-    order = await sync_to_async(get_object_or_404)(
+    order = get_object_or_404(
         Order.objects.prefetch_related('user__telegram_user'),  # Асинхронно загружаем bot_user
-        id=order_id
-    )
+        id=order_id)
     old_status = order.status
 
     if request.method == 'POST':
         new_status = request.POST.get('status')
         order.status = new_status
-        await sync_to_async(order.save)()
+        order.save()
 
         # Получаем Telegram ID пользователя, если он есть
         telegram_id = None  # Инициализируем telegram_id
@@ -378,14 +392,24 @@ async def update_order_status(request, order_id):
 
         logger.info(f"Attempting to send message to telegram_id: {telegram_id}")
 
-        if telegram_id:
-            message = f"Статус вашего заказа №{order.id} изменен!\n\n"
-            message += f"Старый статус: {old_status}\n"
-            message += f"Новый статус: {order.get_status_display()}\n"
-            await send_telegram_message(telegram_id, message)
+
+        data = {
+            'telegram_id': telegram_id,  # ID пользователя из Telegram
+            'order_id': order.id,
+            'new_status': order.status,
+        }
+        try:
+            # Отправка POST-запроса к вашему боту
+            response = requests.post('http://127.0.0.1:8080/notify', json=data)
+            response.raise_for_status()
+        except requests.RequestException as e:
+            # Логируем ошибки
+            logger.error(f"Ошибка при отправке уведомления о смене статуса: {e}")
 
         return redirect('adminpage')  # обратно на страницу с историей заказов
     return redirect('adminpage')
+
+
 
 
 def add_to_cart_once_more(request, order_id):

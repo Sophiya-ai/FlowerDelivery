@@ -1,4 +1,5 @@
 from aiogram import Bot
+from celery import shared_task
 from aiogram.exceptions import TelegramForbiddenError, TelegramBadRequest
 import logging
 import aiohttp
@@ -13,7 +14,8 @@ bot = Bot(token=settings.TELEGRAM_BOT_TOKEN)
 
 
 # Отправляет текстовое или медиа-сообщение в Telegram
-async def send_telegram_message(telegram_id, message):
+@shared_task(bind=True, retry_backoff=True)
+async def send_telegram_message(self, telegram_id, message):
     try:
         if message.startswith("http://") or message.startswith("https://"):
             # Отправка изображения
