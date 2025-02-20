@@ -250,8 +250,9 @@ async def process_order(request):
         start_time = datetime.strptime('08:00', '%H:%M').time()
         end_time = datetime.strptime('18:00', '%H:%M').time()
 
+        message_about_time = ''
         if not start_time <= now <= end_time:
-            message = (
+            message_about_time = (
                 "\nВаш заказ принят, но будет обработан в рабочее время (с 8:00 до 18:00). О смене статуса "
                 "будет сообщено.\n")
 
@@ -262,17 +263,20 @@ async def process_order(request):
 
             data = {
                 'order_id': order.id,  # ID пользователя из Telegram
-                'order_notes': order.notes,
+                'notes': order.notes,
                 'address': order.delivery_address,
-                'order_notes': order.total_price,
+                'total_price': order.total_price,
                 'order_items': order_items,
                 'image_urls': image_urls,
-                'message_about_time': message,
+                'message_about_time': message_about_time,
             }
             try:
                 # Отправка POST-запроса к вашему боту
-                response = requests.post('http://127.0.0.1:8080/notify', json=data)
-                response.raise_for_status()  
+                response = requests.post('http://127.0.0.1:8080/ordernotify', json=data)
+                response.raise_for_status()
+            except requests.RequestException as e:
+                # Логируем ошибки
+                logger.error(f"Ошибка при отправке уведомления о заказе: {e}")
 
         else:
             logger.warning(

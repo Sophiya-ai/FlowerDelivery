@@ -124,9 +124,30 @@ async def main():
             logging.error(f'Ошибка при отправке сообщения: {e}')
             return web.json_response({'error': str(e)}, status=500)
 
+
+
+    async def order_notify(request):
+        try:
+            data = await request.json()
+            telegram_id = data.get('telegram_id')
+            order_id = data.get('order_id')
+            new_status = data.get('new_status')
+
+            if not telegram_id or not order_id or not new_status:
+                return web.json_response({'error': 'Missing required fields'}, status=400)
+
+            message = f'Ваш заказ № {order_id} изменил статус на: "{new_status}" '
+            await bot.send_message(chat_id=telegram_id, text=message)
+            return web.json_response({'status': 'success'})
+        except Exception as e:
+            logging.error(f'Ошибка при отправке сообщения: {e}')
+            return web.json_response({'error': str(e)}, status=500)
+
+
     # Set up aiohttp app
     app = web.Application()
     app.router.add_post('/notify', notify)
+    app.router.add_post('/ordernotify', order_notify)
 
     # Run both the aiohttp app and the polling
     runner = web.AppRunner(app)
