@@ -6,7 +6,6 @@ import requests
 
 from django.contrib import messages
 from django.shortcuts import render, redirect, get_object_or_404
-from django.db.models import Prefetch
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.forms import AuthenticationForm
 from django.core.paginator import Paginator
@@ -16,7 +15,6 @@ from django.contrib.auth import get_user_model  # Импортирована ф�
                                                 # которая позволяет получить текущую модель пользователя,
                                                 # указанную в AUTH_USER_MODEL
 from django.db.models import Avg
-from asgiref.sync import sync_to_async
 
 from .models import Category, Product, Order, OrderItem, Review
 from .forms import UserFormInOrderHistory, UserProfileCreationForm, ReviewForm, AdminForm
@@ -174,7 +172,7 @@ def remove_from_cart(request, product_id):
 
 
 @login_required
-async def process_order(request):
+def process_order(request):
     if request.method == 'POST':
         cart = request.session.get('cart', {})
         if not cart:
@@ -196,8 +194,7 @@ async def process_order(request):
         # Получаем Telegram ID пользователя, если он есть
         try:
             user_profile = request.user  # Получаем пользователя
-            bot_user = await sync_to_async(
-                lambda: user_profile.telegram_user)()  # Получаем связанный BotUser через поле telegram_user
+            bot_user = user_profile.telegram_user  # Получаем связанный BotUser через поле telegram_user
             telegram_id = bot_user.telegram_id if bot_user else None
         except Exception as e:
             telegram_id = None
@@ -205,7 +202,7 @@ async def process_order(request):
         logger.info(f"Attempting to send message to telegram_id: {telegram_id}")
 
         total_price = 0
-        order = await sync_to_async(Order.objects.create)(
+        order = Order.objects.create(
             user=request.user,
             delivery_address=delivery_address,
             order_date=order_date,
@@ -218,7 +215,7 @@ async def process_order(request):
 
         for product_id, quantity in cart.items():
             try:
-                product = await sync_to_async(Product.objects.get)(pk=product_id)
+                product = Product.objects.get(pk=product_id)
             except Product.DoesNotExist:
                 logger.error(f"Product with id {product_id} not found.")
                 messages.error(request, f"Товар с id {product_id} не найден.")  # Сообщаем об ошибке
@@ -228,7 +225,7 @@ async def process_order(request):
             total_for_product = price * quantity
             total_price += total_for_product
 
-            await sync_to_async(OrderItem.objects.create)(
+            OrderItem.objects.create(
                 order=order,
                 product=product,
                 quantity=quantity,
@@ -242,7 +239,7 @@ async def process_order(request):
                 image_urls.append(image_url)
 
         order.total_price = total_price
-        await sync_to_async(order.save)()
+        order.save()
 
         del request.session['cart']
 
@@ -262,10 +259,11 @@ async def process_order(request):
         if telegram_id:
 
             data = {
-                'order_id': order.id,  # ID пользователя из Telegram
+                'telegram_id': telegram_id,
+                'order_id': order.id,
                 'notes': order.notes,
                 'address': order.delivery_address,
-                'total_price': order.total_price,
+                'total_price': float(order.total_price),
                 'order_items': order_items,
                 'image_urls': image_urls,
                 'message_about_time': message_about_time,

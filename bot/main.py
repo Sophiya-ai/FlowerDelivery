@@ -1,5 +1,6 @@
 import asyncio
 import logging
+import requests
 import sqlite3  # Импортируем sqlite3
 from aiohttp import web
 from aiogram.client.session.aiohttp import AiohttpSession
@@ -23,7 +24,6 @@ async def main():
 
     # Настройка логирования
     logging.basicConfig(level=logging.INFO)
-
 
     DATABASE_URL = "../db/db.sqlite3"
 
@@ -125,19 +125,48 @@ async def main():
             return web.json_response({'error': str(e)}, status=500)
 
 
-
     async def order_notify(request):
         try:
             data = await request.json()
             telegram_id = data.get('telegram_id')
             order_id = data.get('order_id')
-            new_status = data.get('new_status')
+            notes = data.get('notes')
+            delivery_address = data.get('address')
+            total_price = data.get('total_price')
+            order_items = data.get('order_items')
+            image_urls = data.get('image_urls')
+            message_about_time = data.get('message_about_time')
 
-            if not telegram_id or not order_id or not new_status:
+            if not telegram_id or not order_id:
                 return web.json_response({'error': 'Missing required fields'}, status=400)
 
-            message = f'Ваш заказ № {order_id} изменил статус на: "{new_status}" '
+            message = f"Ваш заказ №{order_id} успешно размещен!\n\n"
+            message += f"Информация о доставке:\n {notes}\n\n"
+            message += f"Адрес доставки: {delivery_address}\n"
+            message += f"Общая сумма: {total_price}\n"
+            message += "\nСостав заказа:\n"
+            message += "\n".join(order_items)  # Добавляем информацию о каждой позиции заказа
+            message += f'\n{message_about_time}'
+            message += "\nВизуализация содержимого вашего заказа:"
+
             await bot.send_message(chat_id=telegram_id, text=message)
+            for url in image_urls:
+                if url.startswith("http://") or url.startswith("https://"):
+                    try:
+                        response = requests.get(url, stream=True)
+                        response.raise_for_status()
+                        content_type = response.headers.get('Content-Type')
+
+                        if content_type and content_type.startswith('image'):
+                            await bot.send_photo(chat_id=telegram_id, photo=message)
+                            logging.info(f"Successfully sent photo to telegram_id {telegram_id}")
+                        else:
+                            logging.error(
+                                f"URL is not an image or Content-Type is not image. Content-Type: {content_type}, URL: {message}")
+                    except requests.exceptions.RequestException as e:
+                        logging.error(f"Request error: {e}")
+                    except Exception as e:
+                        logging.error(f"Error sending photo: {e}")
             return web.json_response({'status': 'success'})
         except Exception as e:
             logging.error(f'Ошибка при отправке сообщения: {e}')
