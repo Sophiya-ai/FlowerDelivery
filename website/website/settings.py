@@ -153,23 +153,23 @@ TELEGRAM_BOT_USERNAME = "OderFlower_bot"
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # пропишем абсолютный путь к проекту. При перемещении в другую папку, надо изменить
-try:
-    sys.path.append('C:/Users/Sofi/Documents/GitHub/FlowerDelivery/bot')  # Не рекомендуется, но возможно
-    from config import BOT_TOKEN
+# try:
+#     sys.path.append('C:/Users/Sofi/Documents/GitHub/FlowerDelivery/bot')  # Не рекомендуется, но возможно
+#     from config import BOT_TOKEN
+#
+#     TELEGRAM_BOT_TOKEN = BOT_TOKEN
+# except ImportError as e:
+#     print(f"ImportError: {e}")
+#     TELEGRAM_BOT_TOKEN = None
 
+try:
+    sys.path.insert(0, os.path.join(BASE_DIR.parent, 'bot'))
+    print(BASE_DIR.parent)
+    from config import BOT_TOKEN  # website - имя пакета
     TELEGRAM_BOT_TOKEN = BOT_TOKEN
 except ImportError as e:
     print(f"ImportError: {e}")
     TELEGRAM_BOT_TOKEN = None
-
-# sys.path.insert(0, os.path.join(BASE_DIR, 'bot'))
-#
-# try:
-#     from website.bot import config  # website - имя пакета
-#     TELEGRAM_BOT_TOKEN = config.BOT_TOKEN
-# except ImportError as e:
-#     print(f"ImportError: {e}")
-#     TELEGRAM_BOT_TOKEN = None
 print(sys.path)
 
 
