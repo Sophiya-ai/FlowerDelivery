@@ -16,7 +16,7 @@ from aiogram.types import Message
 # и направляет их соответствующим обработчикам
 
 
-from config import BOT_TOKEN
+from .config import BOT_TOKEN
 
 
 # Настройка логирования
@@ -104,6 +104,7 @@ async def start(message: Message, bot: Bot):
 
     else:
         await message.reply("Произошла ошибка при подключении к базе данных. Попробуйте позже.")
+
 
 
 # Функции-обработчики для HTTP-запросов, получаемых ботом. request - объект запроса, предоставляемый aiohttp
