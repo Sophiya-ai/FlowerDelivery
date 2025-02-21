@@ -1,21 +1,28 @@
 import asyncio
 import logging
-import io
 import sqlite3  # Импортируем sqlite3
+# aiohttp предоставляет асинхронный HTTP-клиент и сервер. Используется для выполнения асинхронных HTTP-запросов,
+# например, для получения данных из внешних источников
 import aiohttp
-from aiohttp import web
-from aiogram.client.session.aiohttp import AiohttpSession
+from aiohttp import web # позволяет создавать асинхронные веб-приложения
+from aiogram.client.session.aiohttp import AiohttpSession # класс используется для интеграции aiogram с aiohttp,
+                                                          # позволяя боту выполнять HTTP-запросы асинхронно
 
 from aiogram.filters import Command
 from aiogram import Bot, Dispatcher, types
 from aiogram.types import Message
+# Bot: Класс, представляющий бота для отправки сообщений, фотографий и выполнения других действий от имени бота.
+# Dispatcher: Класс, который обрабатывает входящие обновления от Telegram (сообщения, нажатия кнопок и т. д.)
+# и направляет их соответствующим обработчикам
+
 
 from config import BOT_TOKEN
 
 
 # Используем асинхронную функцию `main` для инициализации и запуска бота
 async def main():
-    # Create an aiohttp session
+    # Create an aiohttp session (объект будет использоваться для управления HTTP-сессиями для бота,
+    # позволяя ему отправлять асинхронные запросы через aiohttp)
     session = AiohttpSession()
 
     # Initialize bot and dispatcher with context
@@ -23,7 +30,8 @@ async def main():
     dp = Dispatcher()
 
     # Настройка логирования
-    logging.basicConfig(level=logging.INFO)
+    logging.basicConfig(level=logging.INFO) # для записи информационных сообщений и сообщений более высокого уровня
+                                            # (предупреждения, ошибки, критические ошибки)
 
     DATABASE_URL = "../db/db.sqlite3"
 
@@ -106,10 +114,16 @@ async def main():
         else:
             await message.reply("Произошла ошибка при подключении к базе данных. Попробуйте позже.")
 
+    # Функции-обработчики для HTTP-запросов, получаемых ботом. request - объект запроса, предоставляемый aiohttp
 
+    # Обработчик смены статуса
     async def notify(request):
         try:
+            # Асинхронно считываются данные из тела запроса в формате JSON и преобразуются в словарь Python.
+            # await используется, потому что request.json() является корутиной
             data = await request.json()
+
+            # Извлекаем значения ключей
             telegram_id = data.get('telegram_id')
             order_id = data.get('order_id')
             new_status = data.get('new_status')
@@ -124,7 +138,7 @@ async def main():
             logging.error(f'Ошибка при отправке сообщения: {e}')
             return web.json_response({'error': str(e)}, status=500)
 
-
+    # Обработчик отслыки данных заказа
     async def order_notify(request):
         try:
             data = await request.json()
@@ -182,18 +196,34 @@ async def main():
             return web.json_response({'error': str(e)}, status=500)
 
     # Set up aiohttp app
-    app = web.Application()
+    app = web.Application() # объект представляет собой асинхронное веб-приложение
+
+    # Добавляем маршруты.
+
+    # Маршрут (route) для обработки HTTP POST-запросов по пути /notify. Когда aiohttp получает POST-запрос по этому пути,
+    # он вызывает асинхронную функцию notify для обработки запроса
     app.router.add_post('/notify', notify)
+
+    # Эквивалентный способ добавления маршрута. web.post('/ordernotify', order_notify) создает RouteDef,
+    # который связывает POST-запросы к /ordernotify с асинхронной функцией order_notify.
     app.add_routes([web.post('/ordernotify', order_notify)])
 
     # Run both the aiohttp app and the polling
-    runner = web.AppRunner(app)
-    await runner.setup()
-    site = web.TCPSite(runner, 'localhost', 8080)
-    await site.start()
+    runner = web.AppRunner(app) # экземпляр класса AppRunner (отвечает за управление жизненным циклом веб-приложения)
+    await runner.setup() # Асинхронно выполняет настройку AppRunner, подготавливая его к запуску веб-приложения
+    site = web.TCPSite(runner, 'localhost', 8080) # Создает экземпляр класса TCPSite,
+                                                            # который представляет собой TCP-сайт,
+                                                            # на котором будет работать веб-приложение
+    await site.start() # Асинхронно запускает TCP-сайт, начиная прослушивание входящих HTTP-запросов на указанном хосте и порту
 
-    # Start polling for Telegram bot
+    # Асинхронно запускаем процесс получения обновлений от Telegram
+    # skip_updates=True: Указывает, что при запуске бота нужно пропустить все необработанные обновления,
+    # которые накопились за время, пока бот не работал
     await dp.start_polling(bot, skip_updates=True)
 
+# код внутри этого блока будет выполнен только тогда, когда скрипт запускается напрямую,
+# а не когда он импортируется как модуль
+# Запускаем асинхронную функцию main с использованием цикла событий asyncio.
+# Это необходимо для запуска асинхронного кода.
 if __name__ == '__main__':
     asyncio.run(main())
