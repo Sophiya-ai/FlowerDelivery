@@ -7,8 +7,7 @@ from aiohttp import web
 from aiogram.client.session.aiohttp import AiohttpSession
 
 from aiogram.filters import Command
-from aiogram import Bot, Dispatcher
-from aiogram.types import InputFile
+from aiogram import Bot, Dispatcher, types
 from aiogram.types import Message
 
 from config import BOT_TOKEN
@@ -151,16 +150,29 @@ async def main():
             message += "\nВизуализация содержимого вашего заказа:"
 
             await bot.send_message(chat_id=telegram_id, text=message)
-            async with aiohttp.ClientSession() as session:
+            # for url in image_urls:
+            #     try:
+            #         await bot.send_photo(chat_id=telegram_id, photo=url)
+            #     except Exception as e:
+            #         logging.error(f"Error sending photo {url}: {e}")
+            async with aiohttp.ClientSession() as session_order:  # Используем aiohttp для асинхронных запросов
                 for url in image_urls:
                     try:
-                        async with session.get(url) as response:
+                        # обходим проверку Content-Type. Экземпляр абстрактного класса InputFile напрямую не создается,
+                        # InputFile - это абстрактный класс, и надо использовать его подклассы для отправки файлов.
+                        # В aiogram есть разные подклассы InputFile для разных типов источников данных.
+                        # Здесь, когда есть данные изображения в памяти (в переменной image_data),
+                        # следует использовать types.BufferedInputFile
+                        async with session_order.get(url) as response:
                             if response.status == 200:
-                                image_data = await response.read()
-                                photo = InputFile(io.BytesIO(image_data), filename='image.jpg')
-                                await bot.send_photo(chat_id=telegram_id, photo=photo)
+                                image_data = await response.read()  # Читаем данные изображения
+                                photo = types.BufferedInputFile(image_data,
+                                                                filename='image.jpg')  # Используем BufferedInputFile
+                                await bot.send_photo(chat_id=telegram_id, photo=photo)  # Отправляем InputFile
+                                logging.info(f"Successfully sent photo {url} to telegram_id {telegram_id}")
                             else:
-                                logging.error(f"Failed to fetch image from URL: {url} with status {response.status}")
+                                logging.error(
+                                    f"Failed to fetch image from URL: {url} with status {response.status}")
                     except Exception as e:
                         logging.error(f"Error sending photo {url}: {e}")
 
@@ -172,7 +184,7 @@ async def main():
     # Set up aiohttp app
     app = web.Application()
     app.router.add_post('/notify', notify)
-    app.router.add_post('/ordernotify', order_notify)
+    app.add_routes([web.post('/ordernotify', order_notify)])
 
     # Run both the aiohttp app and the polling
     runner = web.AppRunner(app)
