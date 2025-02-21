@@ -24,10 +24,12 @@
                 <span class="not-available">Нет в наличии</span>
             {% endif %}
         </p>
-        {% if product.is_available %}
+        {% if product.is_available and user.is_authenticated %}
             <a href="{% url 'add_to_cart' product.id %}" class="btn btn-primary">В корзину</a>
         {% endif %}
-        <a href="{% url 'product_reviews' product.id %}" class="btn btn-primary">Отзывы</a>
+        {% if user.is_authenticated %}
+            <a href="{% url 'product_reviews' product.id %}" class="btn btn-primary">Отзывы</a>
+        {% endif %}
         <p class="product-price">
             {% if product.is_available %}
                 Цена: {{ product.price }} руб.

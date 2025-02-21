@@ -9,6 +9,13 @@ body {
     min-height: 100vh; /* Ensure it covers the entire viewport height */
 }
 
+main {
+    width: 100%;
+    padding: 0;
+    margin: 0;
+    flex: 1; /* Allow main to grow and take up remaining space */
+}
+
 /* Hero Section */
 .hero {
     background: url("../img/flowers.jpg") no-repeat center center;
@@ -91,13 +98,6 @@ body {
     margin-left: 5px; /* Отступ слева от значка */
 }
 
-
-main {
-    width: 100%;
-    padding: 0;
-    margin: 0;
-    flex: 1; /* Allow main to grow and take up remaining space */
-}
 
 
 /* Product Card */
@@ -201,17 +201,18 @@ main {
 }
 
 /* Sidebar */
+/*
 .sidebar-card {
     border: none;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
     height: 200px;
-    max-width: 70%; /* Убедитесь, что ширина карты не превышает ширину колонки */
+    max-width: 70%;
 }
 
 @media (min-width: 768px) {
     .sidebar-card {
         position: sticky;
-        top: 5px; /* Это значение можно изменить в зависимости от вашего дизайна */
+        top: 5px;
     }
 }
 
@@ -227,6 +228,7 @@ main {
     padding: 1rem;
     color: #555;
 }
+*/
 
 /* Стилизация кнопки подключения к Telegram */
 .btn-bordered {

@@ -22,7 +22,7 @@
             <ul class="navbar-nav ml-auto">
                 {% if user.is_authenticated %}
                     <li class="nav-item">
-                        <a class="nav-link" href="#">Привет, {{ user.username }}!</a>
+                        <a class="nav-link" href="{% url 'individual_data' %}">Привет, {{ user.username }}!</a>
                     </li>
                     <li class="nav-item">
                         {% if request.user.username == 'admin' %}
