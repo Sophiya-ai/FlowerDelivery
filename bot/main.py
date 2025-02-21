@@ -155,7 +155,7 @@ async def main():
                 return web.json_response({'error': 'Missing required fields'}, status=400)
 
             message = f"Ваш заказ №{order_id} успешно размещен!\n\n"
-            message += f"Информация о доставке:\n {notes}\n\n"
+            message += f"Информация о доставке:\n <<{notes}>>\n\n"
             message += f"Адрес доставки: {delivery_address}\n"
             message += f"Общая сумма: {total_price}\n"
             message += "\nСостав заказа:\n"

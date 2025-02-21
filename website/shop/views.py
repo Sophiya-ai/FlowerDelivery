@@ -294,7 +294,7 @@ def register(request):
     if request.method == 'POST':
         form = UserProfileCreationForm(request.POST)
         if form.is_valid():
-            user = form.save()
+            form.save()
             return redirect('login')  # Перенаправляем на главную страницу
     else:
         form = UserProfileCreationForm()
