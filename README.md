@@ -69,7 +69,7 @@
 - **website/** — папка Django-проекта.
   - `staticfiles/` — содежит статические файлы (важен для правильной работы WhiteNoise).
   - `templates/` — HTML-шаблоны (описаны на рисунке):    
-        ![img_2.png](img_2.png)
+        ![img.png](img.png)
   - `shop/` — приложение магазина.
   - `media/` — медиа-файлы. 
 
