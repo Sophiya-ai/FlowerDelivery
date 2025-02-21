@@ -24,7 +24,7 @@ main {
     text-align: center;
     position: relative;
     overflow: hidden;
-    height: 350px;
+    height: 250px;
    }
 
 .hero::before {

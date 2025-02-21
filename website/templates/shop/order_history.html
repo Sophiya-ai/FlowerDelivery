@@ -1,4 +1,5 @@
 {% extends 'shop/base.html' %}
+{% load widget_tweaks %}
 
 {% block title %}
     <title>Личная страница пользователя</title>
@@ -11,7 +12,7 @@
             <div class="row">
                 <div class="col-md-6">
                     <div class="card register-card mb-3">
-                        <div class="card-header sidebar-card-header">
+                        <div class="card-header">
                             <h4>Личные данные пользователя</h4>
                         </div>
                         <div class="card-body">
@@ -26,8 +27,8 @@
                 </div>
 
                 <div class="col-md-6">
-                    <div class="card register-card mb-3">
-                        <div class="card-header sidebar-card-header">
+                    <div class="card register-card">
+                        <div class="card-header">
                             <h4>Редактировать профиль</h4>
                         </div>
                         <div class="card-body">
@@ -35,13 +36,10 @@
                                 {% csrf_token %}
 
                                 {% for field in form %}
-                                    <div class="form-group mb-3">
+                                    <div class="form-group">
                                          {% if field.label != "Telegram user" %}
-                                            <label for="{{ field.id_for_label }}">
-                                                {{ field.label }}
-                                            </label>
-
-                                            {{ field }}
+                                            <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                                            {{ field|add_class:"form-control"  }}
                                             {% if field.errors %}
                                                 <div class="alert alert-danger mt-2">
                                                     {{ field.errors|striptags }}
@@ -50,6 +48,16 @@
                                         {% endif %}
                                     </div>
                                 {% endfor %}
+
+                                <div class="form-group">
+                                    <label for="new_password">Новый пароль</label>
+                                    <input type="password" name="new_password" id="new_password" class="form-control">
+                                </div>
+                                <div class="form-group">
+                                    <label for="confirm_password">Подтверждение пароля</label>
+                                    <input type="password" name="confirm_password" id="confirm_password" class="form-control">
+                                </div>
+
                                 <button type="submit" class="btn register-button">Сохранить</button>
                             </form>
                         </div>
@@ -57,10 +65,11 @@
                 </div>
             </div>
 
+
             <div class="row">
                 <div class="col-12">
                     <div class="card register-card mb-3">
-                        <div class="card-header sidebar-card-header">
+                        <div class="card-header">
                             <h4>История заказов</h4>
                         </div>
                         <div class="card-body">

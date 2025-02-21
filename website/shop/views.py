@@ -15,6 +15,7 @@ from django.contrib.auth import get_user_model  # Импортирована ф�
                                                 # которая позволяет получить текущую модель пользователя,
                                                 # указанную в AUTH_USER_MODEL
 from django.db.models import Avg
+from django.contrib.auth import update_session_auth_hash
 
 from .models import Category, Product, Order, OrderItem, Review
 from .forms import UserFormInOrderHistory, UserProfileCreationForm, ReviewForm, AdminForm
@@ -295,7 +296,7 @@ def register(request):
         form = UserProfileCreationForm(request.POST)
         if form.is_valid():
             form.save()
-            return redirect('login')  # Перенаправляем на главную страницу
+            return redirect('login')  # Перенаправляем на страницу входа
     else:
         form = UserProfileCreationForm()
     return render(request, 'shop/register.html', {'form': form})
@@ -314,10 +315,43 @@ def logout_view(request):
 
 # https://t.me/{bot_username}?start={user_id} - Это стандартная схема deeplink для Telegram ботов,
 # при переходе по которой бот откроется и получит user_id в качестве аргумента команды start
+# @login_required
+# def view_orders_and_individual_data(request):
+#     if request.method == 'POST':
+#         form = UserFormInOrderHistory(request.POST, instance=request.user)
+#         if form.is_valid():
+#             form.save()
+#             return redirect('individual_data')  # Обновляем страницу
+#     else:
+#         form = UserFormInOrderHistory(instance=request.user)
+#
+#     telegram_bot_url = f"https://t.me/{settings.TELEGRAM_BOT_USERNAME}?start={request.user.id}"
+#
+#     # Получаем историю заказов пользователя и сортируем по дате (сначала новые за счет order_by('-order_date'))
+#     order_history_data = Order.objects.filter(user=request.user).order_by('-order_date')
+#
+#     # Прописываем словари для передачи информации в html-шаблон
+#     return render(request, 'shop/order_history.html',
+#                   {'form': form,
+#                            'user': request.user,
+#                            'telegram_bot_url': telegram_bot_url,
+#                            'order_history': order_history_data})
 @login_required
 def view_orders_and_individual_data(request):
     if request.method == 'POST':
         form = UserFormInOrderHistory(request.POST, instance=request.user)
+        new_password = request.POST.get('new_password')
+        confirm_password = request.POST.get('confirm_password')
+
+        if new_password and confirm_password:
+            if new_password == confirm_password:
+                request.user.set_password(new_password)
+                request.user.save()
+                update_session_auth_hash(request, request.user)  # Чтобы не выкинуть пользователя из сессии
+                messages.success(request, 'Пароль успешно изменен.')
+            else:
+                messages.error(request, 'Пароли не совпадают.')
+
         if form.is_valid():
             form.save()
             return redirect('individual_data')  # Обновляем страницу
@@ -332,15 +366,28 @@ def view_orders_and_individual_data(request):
     # Прописываем словари для передачи информации в html-шаблон
     return render(request, 'shop/order_history.html',
                   {'form': form,
-                   'user': request.user,
-                   'telegram_bot_url': telegram_bot_url,
-                   'order_history': order_history_data})
+                           'user': request.user,
+                           'telegram_bot_url': telegram_bot_url,
+                           'order_history': order_history_data})
 
 
 @login_required
 def adminpage_view(request):
     if request.method == 'POST':
         form = AdminForm(request.POST, instance=request.user)
+        
+        new_password = request.POST.get('new_password')
+        confirm_password = request.POST.get('confirm_password')
+
+        if new_password and confirm_password:
+            if new_password == confirm_password:
+                request.user.set_password(new_password)
+                request.user.save()
+                update_session_auth_hash(request, request.user)  # Чтобы не выкинуть пользователя из сессии
+                messages.success(request, 'Пароль успешно изменен.')
+            else:
+                messages.error(request, 'Пароли не совпадают.')
+
         if form.is_valid():
             form.save()
             return redirect('adminpage')  # Обновляем страницу

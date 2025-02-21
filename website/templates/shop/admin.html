@@ -1,4 +1,5 @@
 {% extends 'shop/base.html' %}
+{% load widget_tweaks %}
 
 {% block title %}
     <title>Страница управления заказами</title>
@@ -9,8 +10,8 @@
         <div class="container mt-4">
             <div class="row">
                 <div class="col-md-6">
-                    <div class="card register-card mb-3">
-                        <div class="card-header sidebar-card-header">
+                    <div class="card register-card">
+                        <div class="card-header">
                             <h4>Личные данные администратора</h4>
                         </div>
                         <div class="card-body">
@@ -19,14 +20,14 @@
                             <p><strong>Логин:</strong> {{ user.username }}</p>
                             <p><strong>Номер телефона:</strong> {{ user.phone_number }}</p>
                             <p><strong>Адрес:</strong> {{ user.address }}</p>
-                            <p><strong>Тип пользователя:</strong> {{ user.get_type_of_user_display }}</p>
+                            <p><strong>Тип пользователя:</strong> Компания доставки цветов</p>
                         </div>
                     </div>
                 </div>
 
                 <div class="col-md-6">
                     <div class="card register-card mb-3">
-                        <div class="card-header sidebar-card-header">
+                        <div class="card-header">
                             <h4>Редактировать профиль администратора</h4>
                         </div>
                         <div class="card-body">
@@ -36,11 +37,8 @@
                                 {% for field in form %}
                                     <div class="form-group mb-3">
                                          {% if field.name != 'type_of_user' and field.name != 'telegram_user' %}
-                                            <label for="{{ field.id_for_label }}">
-                                                {{ field.label }}
-                                            </label>
-
-                                            {{ field }}
+                                            <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                                            {{ field|add_class:"form-control"  }}
                                             {% if field.errors %}
                                                 <div class="alert alert-danger mt-2">
                                                     {{ field.errors|striptags }}
@@ -49,6 +47,17 @@
                                         {% endif %}
                                     </div>
                                 {% endfor %}
+
+                                <div class="form-group">
+                                    <label for="new_password">Новый пароль</label>
+                                    <input type="password" name="new_password" id="new_password" class="form-control">
+                                </div>
+                                <div class="form-group">
+                                    <label for="confirm_password">Подтверждение пароля</label>
+                                    <input type="password" name="confirm_password" id="confirm_password" class="form-control">
+                                </div>
+
+
                                 <button type="submit" class="btn register-button">Сохранить</button>
                             </form>
                         </div>
