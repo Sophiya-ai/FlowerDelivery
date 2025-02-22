@@ -148,7 +148,7 @@ print(MEDIA_ROOT)
 
 AUTH_USER_MODEL = 'shop.UserProfile'
 
-TELEGRAM_BOT_USERNAME = "OderFlower_bot"
+TELEGRAM_BOT_USERNAME = "your-bot-username"
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
