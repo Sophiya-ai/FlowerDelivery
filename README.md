@@ -53,7 +53,10 @@
      ```bash
      BOT_TOKEN="your-bot-token"
        ```
-     
+   - Добавьте имя своего бота в website/website/settings.py:
+     ```bash
+     TELEGRAM_BOT_USERNAME = "your-bot-username"
+       ```
    - Запустите бота из директории bot:
      ```bash
      cd bot
