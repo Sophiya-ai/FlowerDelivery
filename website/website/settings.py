@@ -148,7 +148,7 @@ print(MEDIA_ROOT)
 
 AUTH_USER_MODEL = 'shop.UserProfile'
 
-TELEGRAM_BOT_USERNAME = "your-bot-username"
+
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
@@ -165,8 +165,9 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 try:
     sys.path.insert(0, os.path.join(BASE_DIR.parent, 'bot'))
     print(BASE_DIR.parent)
-    from config import BOT_TOKEN  # website - имя пакета
+    from config import BOT_TOKEN, BOT_USERNAME  # website - имя пакета
     TELEGRAM_BOT_TOKEN = BOT_TOKEN
+    TELEGRAM_BOT_USERNAME = BOT_USERNAME
 except ImportError as e:
     print(f"ImportError: {e}")
     TELEGRAM_BOT_TOKEN = None

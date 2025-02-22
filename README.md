@@ -49,14 +49,12 @@
 
 5. Настройте и запустите бота:   
      
-   - Добавьте токен своего бота в bot/config.py:
+   - Добавьте токен и имя своего бота в bot/config.py:
      ```bash
      BOT_TOKEN="your-bot-token"
+     BOT_USERNAME = "your-bot-username"
        ```
-   - Добавьте имя своего бота в website/website/settings.py:
-     ```bash
-     TELEGRAM_BOT_USERNAME = "your-bot-username"
-       ```
+   
    - Запустите бота из директории bot:
      ```bash
      cd bot
