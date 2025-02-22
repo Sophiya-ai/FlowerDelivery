@@ -315,27 +315,6 @@ def logout_view(request):
 
 # https://t.me/{bot_username}?start={user_id} - Это стандартная схема deeplink для Telegram ботов,
 # при переходе по которой бот откроется и получит user_id в качестве аргумента команды start
-# @login_required
-# def view_orders_and_individual_data(request):
-#     if request.method == 'POST':
-#         form = UserFormInOrderHistory(request.POST, instance=request.user)
-#         if form.is_valid():
-#             form.save()
-#             return redirect('individual_data')  # Обновляем страницу
-#     else:
-#         form = UserFormInOrderHistory(instance=request.user)
-#
-#     telegram_bot_url = f"https://t.me/{settings.TELEGRAM_BOT_USERNAME}?start={request.user.id}"
-#
-#     # Получаем историю заказов пользователя и сортируем по дате (сначала новые за счет order_by('-order_date'))
-#     order_history_data = Order.objects.filter(user=request.user).order_by('-order_date')
-#
-#     # Прописываем словари для передачи информации в html-шаблон
-#     return render(request, 'shop/order_history.html',
-#                   {'form': form,
-#                            'user': request.user,
-#                            'telegram_bot_url': telegram_bot_url,
-#                            'order_history': order_history_data})
 @login_required
 def view_orders_and_individual_data(request):
     if request.method == 'POST':

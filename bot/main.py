@@ -80,9 +80,14 @@ async def start(message: Message, bot: Bot):
                            (message.from_user.id, message.from_user.username, message.from_user.first_name,
                             message.from_user.last_name))
 
+            # Получаем id из shop_BotUser
+            cursor.execute("SELECT id FROM shop_BotUser WHERE telegram_id = ?", (message.from_user.id,))
+            telegram_user_data = cursor.fetchone()
+            telegram_user_id = telegram_user_data[0]
+
             # Обновляем UserProfile
             cursor.execute(""" UPDATE shop_UserProfile SET telegram_user_id = ? WHERE id = ?
-                                                        """, (message.from_user.id, user_id,))
+                                                        """, (telegram_user_id, user_id,))
             conn.commit()
 
             # Получаем имя пользователя для приветствия
