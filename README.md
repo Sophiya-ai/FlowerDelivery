@@ -35,20 +35,23 @@
    ```bash
    pip install -r requirements.txt
    ```
-
-3. Настройте базу данных (вы должны быть в папке джанго-проекта website):
+3. Содайте папку для БД и файл БД:
+   ```bash
+   touch db/db.sqlite3
+   ```
+4. Настройте базу данных (вы должны быть в папке джанго-проекта website):
    ```bash
    cd website
    python manage.py makemigrations
    python manage.py migrate
    ```
 
-4. Запустите сервер (вы должны быть в папке джанго-проекта website):
+5. Запустите сервер (вы должны быть в папке джанго-проекта website):
    ```bash
    python manage.py runserver
    ```
 
-5. Настройте и запустите бота:   
+6. Настройте и запустите бота:   
      
    - Добавьте токен своего бота в bot/config.py или используйте моего:
      ```bash
